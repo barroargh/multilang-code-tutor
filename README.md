@@ -5,7 +5,8 @@ joins, stringr, regex and more — one concept at a time, with real data example
 30-lesson curriculum across 7 tiers.
 
 Features:
-- Adapts teaching style to your background (VBA, Python, Stata, Excel)
+- Adapts teaching style to your background (Python, VBA, R, Excel, Stata)
+- Adapts the lesson plan to your declared **R** level — fast-tracks or marks optional the lessons you likely already know
 - Tracks progress across sessions — resumes where you left off
 - Inline lesson plan in the sidebar — click any lesson to jump there
 - Learning pace picker: Fast / Standard / Deep
@@ -79,43 +80,34 @@ The browser opens automatically at [http://127.0.0.1:7860](http://127.0.0.1:7860
 
 ## Using the app
 
-### First launch — Profile tab
+**First run:** open the **Profile** tab, tick the languages you know — Python, VBA, R,
+Excel, Stata — set a level for each, and describe what you use R for. Your **R** level
+reshapes the lesson plan; the others tune the analogies and examples. Then switch to the
+**Chat** tab and type `start`.
 
-Set your programming background (VBA, Python, Stata, Excel) and your main use of R.
-The bot adapts its teaching style, analogies, and examples to match.
+### Sidebar (always visible)
 
-### Settings tab
+Shows the current lesson and progress bar, the full **lesson plan** (✓ done · ▶ current ·
+○ upcoming, with `fast-track` / `optional` badges and a "Suggested start" hint based on
+your R level — click any row to jump), the **model** picker, and **Mark lesson complete**
+/ **Export chat** buttons.
 
-- **Model** — choose Claude / OpenAI / Ollama or enter a custom model name. Paste your
-  API key and optionally tick "Remember key" to persist it across sessions.
-- **Learning Plan** — pick your goal (Core 15 / Extended 22 / Full 30 lessons), set
-  sessions per week, and see an estimated completion date.
-- **Learning Pace** — Fast (quick pass, one example), Standard (default rhythm), or
-  Deep (two exercises + real-data challenge per lesson).
-- **Appearance** — four colour themes (Default, Dark, Teal, Violet).
+### Tabs
 
-### Chat tab
+- **Chat** — talk to the tutor. Type `start`, `next` / `continue` to advance, `skip` to
+  move on, or `lesson 12` / a lesson name to jump. The strip below shows token usage, the
+  active model, **Compact**, and **Clear**.
+- **Progress** — completion stats and charts; **Reset all progress** lives here.
+- **Profile** — your languages, R level, and use-case. Editable any time — saving
+  refreshes the plan live.
+- **Settings** — model + API key ("Remember key" to persist), **Learning Plan** (goal
+  Core 15 / Extended 22 / Full 30 · sessions per week · ETA), **Learning Pace** (Fast /
+  Standard / Deep), and **Appearance** themes.
+- **Help** — full command reference.
 
-- Type **start** to begin from Lesson 1
-- Type **continue** or **next** to resume or advance lessons
-- Say **lesson 12** or any lesson name to jump directly
-- Use the sidebar lesson plan to click into any lesson
-
-### Sidebar
-
-The lesson plan shows your full curriculum with completion status (✓ done, ▶ current,
-○ upcoming). Lessons beyond your goal are shown faded. Click any row to jump there.
-
-### Progress
-
-Progress is tracked automatically as the tutor emits ✅ Lesson N complete.
-Use **Reset** in the sidebar to start from scratch.
-
-### Export / Compact
-
-- **Export** downloads the current chat as a Markdown file.
-- **Compact** asks the tutor to write a brief session handover note and prepends it to
-  the history — keeps context short without losing continuity.
+Progress saves automatically when the tutor emits `✅ Lesson N complete`. **Export**
+downloads the chat as Markdown; **Compact** swaps the history for a short handover note,
+keeping the context window small without losing continuity.
 
 ---
 
@@ -126,9 +118,10 @@ Use **Reset** in the sidebar to start from scratch.
 | `server.py` | FastAPI backend — chat, progress, profile, settings endpoints |
 | `static/index.html` | Single-page HTML/CSS/JS frontend |
 | `llm_router.py` | Routes messages to Claude / OpenAI / Ollama |
-| `prompt_builder.py` | Builds system prompt from base + user profile + depth setting |
+| `prompt_builder.py` | Builds system prompt from base + profile + depth + per-lesson treatment |
+| `curriculum.py` | Maps your R level to a per-lesson plan (full / fast-track / optional) |
 | `data_manager.py` | Reads/writes profile, progress, history, settings to disk |
-| `lessons.py` | 30-lesson curriculum — edit here to change content |
+| `lessons.py` | 30-lesson curriculum (titles, descriptions, difficulty level) — edit to change content |
 | `system_prompt.md` | Base teaching instructions for the tutor |
 | `build.py` | PyInstaller build script |
 | `launch.bat` | Windows double-click launcher (source mode) |
