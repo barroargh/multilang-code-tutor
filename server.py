@@ -103,12 +103,23 @@ class JumpReq(BaseModel):
 @app.post("/api/jump")
 def jump(req: JumpReq):
     set_current_lesson(req.lesson_id)
-    sp    = build_system_prompt(load_profile(), depth=load_settings().get("depth", "standard"),
+    profile = load_profile()
+    sp    = build_system_prompt(profile, depth=load_settings().get("depth", "standard"),
                                 current_lesson=req.lesson_id)
     title = LESSON_TITLES.get(req.lesson_id, "")
-    instr = (f"Please start teaching Lesson {req.lesson_id}: {title}. "
-             "Begin with the mental model in 2–3 sentences, then a short example, "
-             "then ask the quick-check question.")
+    treatment = plan_for(profile).get(req.lesson_id, "full")
+    if treatment == "optional":
+        instr = (f"Please start Lesson {req.lesson_id}: {title}. "
+                 "It is OPTIONAL for this student's level — follow the optional treatment: "
+                 "offer to skip it or give a 60-second refresher, and ask which they prefer.")
+    elif treatment == "fast":
+        instr = (f"Please start Lesson {req.lesson_id}: {title}. "
+                 "It is FAST-TRACK for this student's level — give a brief refresher and one "
+                 "confidence-check question, not the full multi-beat arc.")
+    else:
+        instr = (f"Please start teaching Lesson {req.lesson_id}: {title}. "
+                 "Begin with the mental model in 2–3 sentences, then a short example, "
+                 "then ask the quick-check question.")
     msgs = [{"role": m["role"], "content": _extract(m["content"])} for m in req.history]
     msgs.append({"role": "user", "content": instr})
 
