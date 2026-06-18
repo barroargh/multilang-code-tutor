@@ -35,8 +35,5 @@ Each lesson = N beats (explanation + exercise) → integration exercise → ✅ 
 - `llm_router.py` returns a friendly error string (not a crash) when API key is missing
 
 ## Git
-- Repo: `barroargh/personal_work`, branch `main`
+- Repo: `barroargh/R_Tutorial_Bot`, default branch `main`
 - Keep branches short-lived: branch off `main` → PR → merge → delete
-- Always commit before switching to villa-bruno work (different project, same repo)
-
-
