@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R Training Bot</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<style>
+:root {
+  --blue:    #185FA5;
+  --blue-50: #EBF4FF;
+  --blue-dk: #0C447C;
+  --green:   #16a34a;
+  --green-50:#f0fdf4;
+  --red:     #dc2626;
+  --bg:      #ffffff;
+  --bg2:     #f8fafc;
+  --bg3:     #f1f5f9;
+  --tx:      #0f172a;
+  --tx2:     #475569;
+  --tx3:     #94a3b8;
+  --bd:      #e2e8f0;
+  --r:       8px;
+  --rl:      12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-size:14px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+     color:var(--tx);background:var(--bg);display:flex;height:100vh;overflow:hidden}
+
+/* ── Layout ── */
+#app{display:flex;width:100%;height:100vh;overflow:hidden}
+.sidebar{width:256px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--bd);
+         display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ── Sidebar ── */
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo h1{font-size:15px;font-weight:600;color:var(--blue);letter-spacing:-.3px}
+.sb-logo p{font-size:11px;color:var(--tx3);margin-top:2px}
+.sb-sec{padding:14px 16px;border-bottom:1px solid var(--bd)}
+.sb-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+        color:var(--tx3);margin-bottom:8px}
+.lesson-card{background:var(--blue-50);border:1px solid rgba(24,95,165,.15);
+             border-radius:var(--r);padding:10px 12px}
+.lesson-card .lc-num{font-size:11px;color:var(--blue);font-weight:500}
+.lesson-card .lc-title{font-size:13px;color:var(--tx);font-weight:500;margin-top:2px;line-height:1.4}
+.prog-bar{height:4px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-top:10px}
+.prog-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .4s ease}
+.prog-lbl{font-size:11px;color:var(--tx3);margin-top:5px;text-align:right}
+
+select,input[type=text],input[type=password]{width:100%;padding:7px 10px;border:1px solid var(--bd);
+  border-radius:var(--r);font-size:13px;background:var(--bg);color:var(--tx);
+  outline:none;transition:border-color .15s}
+select:focus,input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,165,.12)}
+.radio-grp{display:flex;flex-direction:column;gap:5px}
+.radio-item{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.radio-item input{accent-color:var(--blue);cursor:pointer}
+
+details.md-sec>summary{font-size:10px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--tx3);cursor:pointer;list-style:none;
+  padding:14px 16px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:6px;user-select:none}
+details.md-sec>summary::before{content:'▶';font-size:8px;transition:transform .2s;display:inline-block}
+details[open].md-sec>summary::before{transform:rotate(90deg)}
+details.md-sec>summary::-webkit-details-marker{display:none}
+.md-content{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:10px}
+.cb-row{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);cursor:pointer}
+.cb-row input{accent-color:var(--blue);cursor:pointer}
+
+.sb-footer{margin-top:auto;padding:12px 16px;border-top:1px solid var(--bd);
+           display:flex;flex-direction:column;gap:8px}
+
+/* ── Buttons ── */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;
+     padding:8px 14px;border-radius:var(--r);font-size:13px;font-weight:500;
+     cursor:pointer;border:1px solid transparent;transition:all .15s;width:100%}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{background:var(--blue-dk);border-color:var(--blue-dk)}
+.btn-green{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-green:hover{background:#15803d;border-color:#15803d}
+.btn-ghost{background:var(--bg);color:var(--tx2);border-color:var(--bd)}
+.btn-ghost:hover{background:var(--bg3)}
+.btn-danger{background:#fef2f2;color:var(--red);border-color:#fecaca}
+.btn-danger:hover{background:#fee2e2}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── Tab nav ── */
+.tab-nav{display:flex;border-bottom:1px solid var(--bd);background:var(--bg);
+         padding:0 20px;flex-shrink:0}
+.tab-btn{padding:12px 16px;font-size:13px;color:var(--tx2);cursor:pointer;
+         border-bottom:2px solid transparent;transition:color .15s,border-color .15s;
+         user-select:none;font-weight:500;background:none;
+         border-top:none;border-left:none;border-right:none;outline:none}
+.tab-btn:hover{color:var(--tx)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* ── Tab content ── */
+.tab{display:none;flex:1;overflow:hidden;flex-direction:column}
+.tab.active{display:flex}
+
+/* ── Chat ── */
+#messages{flex:1;overflow-y:auto;padding:20px;
+          display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth}
+.message{display:flex;gap:10px;align-items:flex-start;animation:msgIn .18s ease}
+.message.user{flex-direction:row-reverse}
+.message.sys-msg{justify-content:center}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
+        justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+.av-tutor{background:var(--blue-50);color:var(--blue)}
+.av-user{background:var(--green-50);color:var(--green)}
+.bubble{max-width:76%;padding:10px 14px;border-radius:var(--rl);line-height:1.65;font-size:13.5px}
+.message.assistant .bubble{background:var(--bg2);border:1px solid var(--bd);
+  border-top-left-radius:4px;color:var(--tx)}
+.message.user .bubble{background:var(--blue-50);border:1px solid rgba(24,95,165,.2);
+  border-top-right-radius:4px;color:var(--tx)}
+.message.sys-msg .bubble{background:none;border:none;color:var(--tx3);
+  font-size:12px;font-style:italic;padding:2px 0;max-width:100%}
+
+/* Markdown in bubbles */
+.bubble p{margin:0 0 8px}.bubble p:last-child{margin-bottom:0}
+.bubble ul,.bubble ol{margin:4px 0 8px 20px}.bubble li{margin-bottom:3px}
+.bubble strong{font-weight:600}
+.bubble code{background:rgba(15,23,42,.07);padding:1px 5px;border-radius:4px;
+  font-family:'SF Mono','Fira Code',monospace;font-size:12.5px}
+.bubble pre{background:#1e2433;border-radius:var(--r);padding:14px 16px;
+  margin:8px 0;overflow-x:auto;position:relative}
+.bubble pre code{background:none;padding:0;font-size:12.5px;color:#abb2bf;
+  font-family:'SF Mono','Fira Code','Consolas',monospace}
+.bubble table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13px}
+.bubble th,.bubble td{border:1px solid var(--bd);padding:5px 10px;text-align:left}
+.bubble th{background:var(--bg3);font-weight:600}
+.bubble blockquote{border-left:3px solid var(--bd);padding-left:12px;color:var(--tx2);margin:8px 0}
+.copy-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.1);color:#ccc;
+  border:1px solid rgba(255,255,255,.15);border-radius:5px;padding:3px 8px;
+  font-size:11px;cursor:pointer;transition:all .15s;font-family:inherit}
+.copy-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+
+/* Typing */
+.typing-dots{display:flex;align-items:center;gap:4px;padding:4px 0}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--tx3);
+  animation:bounce 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+
+/* Input area */
+.input-area{border-top:1px solid var(--bd);padding:12px 20px;display:flex;gap:8px;
+            align-items:flex-end;background:var(--bg);flex-shrink:0}
+#msg-input{flex:1;min-height:38px;max-height:120px;resize:none;
+  border:1px solid var(--bd);border-radius:var(--rl);padding:9px 14px;
+  font-size:13.5px;font-family:inherit;color:var(--tx);background:var(--bg);
+  outline:none;transition:border-color .15s;overflow-y:auto;line-height:1.5}
+#msg-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,165,.1)}
+#send-btn{padding:9px 20px;background:var(--blue);color:#fff;border:none;
+  border-radius:var(--rl);font-size:13px;font-weight:500;cursor:pointer;
+  transition:background .15s;flex-shrink:0;white-space:nowrap;font-family:inherit}
+#send-btn:hover{background:var(--blue-dk)}
+#send-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── Progress tab ── */
+#tab-progress{overflow-y:auto}
+.prog-content{padding:20px;display:flex;flex-direction:column;gap:20px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rl);
+           padding:16px;text-align:center}
+.stat-val{font-size:28px;font-weight:700;color:var(--tx)}
+.stat-lbl{font-size:12px;color:var(--tx3);margin-top:3px}
+.stat-card.c-blue .stat-val{color:var(--blue)}
+.stat-card.c-green .stat-val{color:var(--green)}
+.charts-row{display:grid;grid-template-columns:210px 1fr;gap:16px;align-items:start}
+.chart-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rl);padding:16px}
+.chart-card h3{font-size:11px;color:var(--tx3);font-weight:600;margin-bottom:14px;
+               text-transform:uppercase;letter-spacing:.06em}
+.donut-wrap{position:relative;width:160px;height:160px;margin:0 auto}
+.donut-ctr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+           text-align:center;pointer-events:none}
+.donut-ctr .dn{font-size:22px;font-weight:700;color:var(--tx)}
+.donut-ctr .dl{font-size:11px;color:var(--tx3)}
+.bar-wrap{position:relative;height:360px}
+.lesson-list-full{display:flex;flex-direction:column;gap:3px}
+.li{display:flex;align-items:center;gap:10px;padding:8px 12px;
+    border-radius:var(--r);transition:background .1s;cursor:default}
+.li:hover{background:var(--bg2)}
+.li-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;
+         justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.li-done{background:#dcfce7;color:var(--green)}
+.li-cur{background:var(--blue-50);color:var(--blue)}
+.li-pend{background:var(--bg3);color:var(--tx3)}
+.li-body{flex:1;min-width:0}
+.li-title{font-size:13px;color:var(--tx);font-weight:400}
+.li.li-current .li-title{color:var(--blue);font-weight:500}
+.li.li-done-item .li-title{color:var(--tx2)}
+.li-desc{font-size:11px;color:var(--tx3);margin-top:1px;
+         white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog-acts{display:flex;gap:8px}
+.prog-acts .btn{width:auto}
+
+/* ── Profile tab ── */
+#tab-profile{overflow-y:auto}
+.prof-content{padding:20px;display:flex;flex-direction:column;gap:20px}
+.prof-intro{background:var(--blue-50);border:1px solid rgba(24,95,165,.15);
+            border-radius:var(--rl);padding:14px 16px;font-size:13px;
+            color:var(--tx2);line-height:1.6}
+.lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lang-card{border:1px solid var(--bd);border-radius:var(--rl);padding:14px 16px;
+           background:var(--bg);transition:border-color .15s,background .15s}
+.lang-card.sel{border-color:var(--blue);background:var(--blue-50)}
+.lang-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.lang-hdr input[type=checkbox]{accent-color:var(--blue);width:16px;height:16px;cursor:pointer}
+.lang-hdr label{font-size:14px;font-weight:500;cursor:pointer}
+.level-row{display:none;gap:6px;flex-wrap:wrap}
+.lang-card.sel .level-row{display:flex}
+.lv-btn{padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500;
+        cursor:pointer;border:1px solid var(--bd);background:var(--bg);
+        color:var(--tx2);transition:all .15s;font-family:inherit}
+.lv-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.uc-lbl{font-size:13px;font-weight:500;color:var(--tx);display:block;margin-bottom:6px}
+textarea.uc-ta{width:100%;min-height:80px;resize:vertical;border:1px solid var(--bd);
+  border-radius:var(--r);padding:9px 12px;font-size:13px;font-family:inherit;
+  color:var(--tx);outline:none;transition:border-color .15s}
+textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,165,.1)}
+.save-row{display:flex;align-items:center;gap:12px}
+.save-ok{font-size:13px;color:var(--green)}
+
+/* ── Help tab ── */
+#tab-help{overflow-y:auto}
+.help-content{padding:20px;display:flex;flex-direction:column;gap:16px}
+
+/* ── Settings tab ── */
+#tab-settings{overflow-y:auto}
+.settings-content{padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;align-items:start}
+.settings-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rl);padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.settings-card-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);padding-bottom:10px;border-bottom:1px solid var(--bd);margin-bottom:2px}
+.help-sec{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rl);padding:16px}
+.help-sec h3{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+             color:var(--tx3);margin-bottom:12px}
+.cmd-table{width:100%;border-collapse:collapse}
+.cmd-table tr+tr td{border-top:1px solid var(--bd)}
+.cmd-table td{padding:7px 0;vertical-align:top;font-size:13px}
+.cmd-table td:first-child{padding-right:16px;width:1%;white-space:nowrap}
+.cmd-pill{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:12px;
+          background:var(--bg3);border:1px solid var(--bd);border-radius:4px;
+          padding:2px 8px;color:var(--tx);display:inline-block;white-space:nowrap}
+.cmd-desc{color:var(--tx2);line-height:1.55}
+.cmd-desc em{color:var(--tx);font-style:normal;font-weight:500}
+.help-note{font-size:12px;color:var(--tx2);background:var(--blue-50);
+           border:1px solid rgba(24,95,165,.15);border-radius:var(--r);
+           padding:9px 13px;line-height:1.65;margin-top:10px}
+.help-note strong{color:var(--blue)}
+.help-kv{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;align-items:baseline}
+.help-kv .k{font-size:11px;font-weight:600;color:var(--tx);white-space:nowrap}
+.help-kv .v{font-size:13px;color:var(--tx2);line-height:1.5}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);
+  padding:10px 20px;border-radius:24px;font-size:13px;font-weight:500;color:#fff;
+  opacity:0;transition:opacity .2s,transform .2s;z-index:9999;pointer-events:none;
+  white-space:nowrap}
+.toast.t-success{background:#14532d}
+.toast.t-info{background:#1e3a5f}
+.toast.t-error{background:#7f1d1d}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Model badge ── */
+.model-badge{font-size:11px;padding:2px 9px;border-radius:99px;
+             background:var(--blue-50);color:var(--blue);
+             border:1px solid rgba(24,95,165,.2);white-space:nowrap;font-weight:500;
+             cursor:default;flex-shrink:0}
+
+/* ── Session separator ── */
+.session-sep{display:flex;align-items:center;gap:10px;padding:4px 20px;
+             color:var(--tx3);font-size:11px;flex-shrink:0;user-select:none}
+.session-sep::before,.session-sep::after{content:'';flex:1;height:1px;background:var(--bd)}
+
+/* ── Context strip ── */
+.ctx-strip{display:flex;align-items:center;gap:10px;padding:5px 20px;
+           border-top:1px solid var(--bd);background:var(--bg2);flex-shrink:0}
+.ctx-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.ctx-meter{width:72px;height:3px;background:var(--bg3);border-radius:99px;overflow:hidden;flex-shrink:0}
+.ctx-fill{height:100%;width:0%;border-radius:99px;background:var(--green);transition:width .35s,background .35s}
+.ctx-fill.mid{background:#f59e0b}
+.ctx-fill.high{background:var(--red)}
+.ctx-lbl{font-size:11px;color:var(--tx3);white-space:nowrap}
+.ctx-right{display:flex;gap:6px;flex-shrink:0}
+.ctx-btn{font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid var(--bd);
+         background:var(--bg);color:var(--tx2);cursor:pointer;font-family:inherit;
+         transition:all .15s;white-space:nowrap}
+.ctx-btn:hover{background:var(--bg3)}
+.ctx-btn-clear{color:var(--red);border-color:#fecaca}
+.ctx-btn-clear:hover{background:#fef2f2 !important}
+
+/* ── Confirm modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:10000;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .15s;pointer-events:none}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal-box{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);
+  padding:22px 24px;max-width:380px;width:calc(100% - 32px);
+  transform:translateY(6px);transition:transform .15s;box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.modal-overlay.show .modal-box{transform:translateY(0)}
+.modal-title{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:8px}
+.modal-body{font-size:13px;color:var(--tx2);line-height:1.6;margin-bottom:20px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+.modal-btns button{padding:7px 18px;border-radius:var(--r);font-size:13px;font-weight:500;
+  cursor:pointer;border:1px solid var(--bd);font-family:inherit;transition:all .15s}
+.modal-ok{background:var(--blue);color:#fff;border-color:var(--blue)!important}
+.modal-ok:hover{background:var(--blue-dk)}
+.modal-cancel{background:var(--bg);color:var(--tx2)}
+.modal-cancel:hover{background:var(--bg3)}
+
+/* ── Scrollbars ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--tx3)}
+
+/* ── Themes ── */
+[data-theme="teal"] {
+  --blue:#0d9488;--blue-50:#f0fdfa;--blue-dk:#0f766e;
+  --bg:#f0fdfa;--bg2:#d0f5ee;--bg3:#a7ede0;--bd:#81d4c8
+}
+[data-theme="violet"] {
+  --blue:#7c3aed;--blue-50:#ede9fe;--blue-dk:#6d28d9;
+  --bg:#faf8ff;--bg2:#ede9fe;--bg3:#ddd6fe;--bd:#c4b5fd
+}
+[data-theme="dark"]   {
+  --blue:#60a5fa;--blue-50:#1e3a5f;--blue-dk:#93c5fd;
+  --green:#4ade80;--green-50:#14532d;
+  --bg:#0f172a;--bg2:#1e293b;--bg3:#334155;
+  --tx:#f1f5f9;--tx2:#94a3b8;--tx3:#64748b;--bd:#334155
+}
+/* ── Provider pills (sidebar) ── */
+.prov-row{display:flex;gap:3px;margin-top:6px}
+.prov-btn{flex:1;padding:5px 2px;font-size:11px;font-weight:500;text-align:center;
+  border:1px solid var(--bd);border-radius:var(--r);background:var(--bg);
+  color:var(--tx2);cursor:pointer;font-family:inherit;transition:all .15s;min-width:0}
+.prov-btn:hover{background:var(--bg3)}
+.prov-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+/* ── Settings drawer ── */
+.sd-overlay{position:fixed;inset:0;z-index:5000;pointer-events:none}
+.sd-overlay.open{pointer-events:all}
+.sd-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.35);opacity:0;transition:opacity .2s}
+.sd-overlay.open .sd-backdrop{opacity:1}
+.sd-drawer{position:absolute;top:0;right:0;height:100%;width:290px;background:var(--bg);
+  border-left:1px solid var(--bd);display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+.sd-overlay.open .sd-drawer{transform:translateX(0)}
+.sd-header{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.sd-title{font-size:14px;font-weight:600;color:var(--tx)}
+.sd-close-btn{background:none;border:none;font-size:15px;color:var(--tx3);
+  cursor:pointer;padding:2px 8px;line-height:1;border-radius:4px;font-family:inherit}
+.sd-close-btn:hover{background:var(--bg3);color:var(--tx)}
+.sd-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:20px}
+.sd-sec{display:flex;flex-direction:column;gap:10px}
+.sd-sec-hd{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--tx3);padding-bottom:8px;border-bottom:1px solid var(--bd)}
+.sd-field{display:flex;flex-direction:column;gap:4px}
+.sd-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3)}
+.sd-hint{font-size:11px;color:var(--tx3);margin-top:2px}
+/* ── Settings open button (sidebar logo) ── */
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:flex-start;justify-content:space-between}
+.sb-logo-text h1{font-size:15px;font-weight:600;color:var(--blue);letter-spacing:-.3px}
+.sb-logo-text p{font-size:11px;color:var(--tx3);margin-top:2px}
+.sd-open-btn{background:none;border:1px solid var(--bd);border-radius:var(--r);
+  padding:5px 8px;color:var(--tx3);cursor:pointer;font-size:13px;line-height:1;
+  flex-shrink:0;margin-top:1px;transition:all .15s;font-family:inherit}
+.sd-open-btn:hover{background:var(--bg3);color:var(--tx)}
+/* ── Theme swatches ── */
+.theme-grid{display:flex;gap:6px}
+.theme-sw{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;
+  background:none;border:2px solid var(--bd);border-radius:var(--r);
+  padding:8px 4px;cursor:pointer;font-family:inherit;transition:all .15s}
+.theme-sw:hover{border-color:var(--blue)}
+.theme-sw.active{border-color:var(--blue);background:var(--blue-50)}
+.sw-dot{width:20px;height:20px;border-radius:50%;display:block}
+.sw-lbl{font-size:10px;color:var(--tx2);white-space:nowrap}
+/* ── Depth picker ── */
+.depth-grid{display:flex;gap:6px;margin-top:4px}
+.depth-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:2px solid var(--bd);border-radius:var(--r);
+  padding:10px 6px;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center}
+.depth-btn:hover{border-color:var(--blue)}
+.depth-btn.active{border-color:var(--blue);background:var(--blue-50)}
+.depth-btn .db-label{font-size:12px;font-weight:600;color:var(--tx)}
+.depth-btn .db-desc{font-size:10px;color:var(--tx3);line-height:1.3}
+/* ── Sidebar lesson plan list ── */
+.sb-plan-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.plan-badge{font-size:10px;color:var(--tx3);background:var(--bg3);
+  padding:1px 7px;border-radius:99px;border:1px solid var(--bd);white-space:nowrap}
+.lesson-plan-list{max-height:210px;overflow-y:auto;margin:0 -8px}
+.lpr{display:flex;align-items:flex-start;gap:7px;padding:5px 8px;
+  border-radius:6px;cursor:pointer;transition:background .1s}
+.lpr:hover{background:var(--bg3)}
+.lpr.lpr-cur{background:var(--blue-50)}
+.lpr.lpr-cur .lpr-txt{color:var(--blue);font-weight:500}
+.lpr.lpr-done .lpr-ico{color:var(--green)}
+.lpr.lpr-cur .lpr-ico{color:var(--blue)}
+.lpr.lpr-out{opacity:.32}
+.lpr-ico{font-size:9px;min-width:12px;margin-top:2px;flex-shrink:0;color:var(--tx3)}
+.lpr-txt{font-size:11px;color:var(--tx2);line-height:1.3}
+.lpr-divider{font-size:9px;color:var(--tx3);text-align:center;padding:5px 0 3px;
+  letter-spacing:.06em;border-top:1px solid var(--bd);margin-top:2px}
+/* ── Model select ── */
+.model-sel-row{display:flex;align-items:center;gap:4px;margin-top:6px}
+#model-select{flex:1;padding:7px 8px;border:1px solid var(--bd);border-radius:var(--r);
+  font-size:12px;background:var(--bg);color:var(--tx);cursor:pointer;font-family:inherit;
+  outline:none}
+#model-select:focus{border-color:var(--blue)}
+#model-custom{margin-top:6px;display:none}
+/* ── Message limit pill ── */
+.msg-pill{font-size:10px;padding:1px 8px;border-radius:99px;white-space:nowrap;
+  border:1px solid var(--bd);color:var(--tx3);background:transparent;transition:all .2s}
+.msg-pill.warn{color:#92400e;background:#fef3c7;border-color:#fde68a}
+.msg-pill.full{color:#991b1b;background:#fee2e2;border-color:#fecaca;font-weight:600}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <h1>R Training Bot</h1>
+      <p>Idiomatic R, one concept at a time</p>
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-lbl">Current lesson</div>
+      <div class="lesson-card">
+        <div class="lc-num" id="sb-num">Lesson 1 of 15</div>
+        <div class="lc-title" id="sb-title">Data structures &amp; subsetting</div>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="sb-fill" style="width:0%"></div></div>
+      <div class="prog-lbl" id="sb-prog-lbl">0 / 15 complete</div>
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-plan-hdr">
+        <span class="sb-lbl" id="plan-lbl">Lesson plan</span>
+        <span class="plan-badge" id="plan-badge">0 / 30</span>
+      </div>
+      <div class="lesson-plan-list" id="lesson-plan-list"></div>
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-lbl">Model</div>
+      <div class="prov-row">
+        <button class="prov-btn active" data-prov="auto">Auto</button>
+        <button class="prov-btn" data-prov="claude">Claude</button>
+        <button class="prov-btn" data-prov="openai">OpenAI</button>
+        <button class="prov-btn" data-prov="ollama">Ollama</button>
+      </div>
+      <div class="model-sel-row">
+        <select id="model-select"></select>
+        <button class="ctx-btn" id="refresh-models-btn" style="display:none;padding:4px 8px">↺</button>
+      </div>
+      <input type="text" id="model-custom" placeholder="custom model id" autocomplete="off">
+      <div id="model-hint" style="font-size:11px;color:var(--tx3);margin-top:3px"></div>
+    </div>
+
+    <div class="sb-footer">
+      <button class="btn btn-green" id="mark-btn">✓ Mark lesson complete</button>
+      <button class="btn btn-ghost" id="export-btn">↓ Export chat</button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="chat">Chat</button>
+      <button class="tab-btn" data-tab="progress">Progress</button>
+      <button class="tab-btn" data-tab="profile">Profile</button>
+      <button class="tab-btn" data-tab="settings">Settings</button>
+      <button class="tab-btn" data-tab="help">Help</button>
+    </div>
+
+    <!-- Chat -->
+    <div class="tab active" id="tab-chat">
+      <div id="messages"></div>
+      <div class="ctx-strip">
+        <div class="ctx-left">
+          <div class="ctx-meter"><div class="ctx-fill" id="ctx-fill"></div></div>
+          <span class="ctx-lbl" id="ctx-lbl">0% · 0 tokens</span>
+          <span class="msg-pill" id="msg-pill">0 / 80</span>
+        </div>
+        <div class="ctx-right">
+          <span class="model-badge" id="model-badge" title="Active model">—</span>
+          <button class="ctx-btn" id="compact-btn">⊙ Compact</button>
+          <button class="ctx-btn ctx-btn-clear" id="clear-chat-btn">✕ Clear</button>
+        </div>
+      </div>
+      <div class="input-area">
+        <textarea id="msg-input" placeholder="Type here — Enter to send, Shift+Enter for newline"></textarea>
+        <button id="send-btn">Send</button>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="tab" id="tab-progress">
+      <div class="prog-content">
+        <div class="stats-grid">
+          <div class="stat-card c-green">
+            <div class="stat-val" id="st-done">0</div>
+            <div class="stat-lbl">Completed</div>
+          </div>
+          <div class="stat-card c-blue">
+            <div class="stat-val" id="st-cur">1</div>
+            <div class="stat-lbl">Current lesson</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="st-rem">15</div>
+            <div class="stat-lbl">Remaining</div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3>Overall progress</h3>
+            <div class="donut-wrap">
+              <canvas id="donut-c"></canvas>
+              <div class="donut-ctr">
+                <div class="dn" id="donut-lbl">0/15</div>
+                <div class="dl">lessons</div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-card" style="flex:1">
+            <h3>Lesson status</h3>
+            <div class="bar-wrap"><canvas id="bar-c"></canvas></div>
+          </div>
+        </div>
+
+        <div class="lesson-list-full" id="lesson-list"></div>
+
+        <div class="prog-acts">
+          <button class="btn btn-ghost" id="refresh-btn" style="width:auto">Refresh</button>
+          <button class="btn btn-danger" id="reset-btn" style="width:auto">Reset all progress</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile -->
+    <div class="tab" id="tab-profile">
+      <div class="prof-content">
+        <div class="prof-intro">
+          Tell the bot your programming background — it adapts analogies and examples to what you already know. You can update this at any time.
+        </div>
+        <div>
+          <div class="sb-lbl" style="font-size:12px;margin-bottom:10px">Languages you know</div>
+          <div class="lang-grid" id="lang-grid"></div>
+        </div>
+        <div>
+          <label class="uc-lbl" for="uc-input">What do you mainly use R for?</label>
+          <textarea class="uc-ta" id="uc-input" placeholder="e.g. cleaning school enrolment data, building reproducible pipelines..."></textarea>
+        </div>
+        <div class="save-row">
+          <button class="btn btn-primary" id="save-prof-btn" style="width:auto;padding:8px 20px">Save profile</button>
+          <span class="save-ok" id="save-ok"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help -->
+    <div class="tab" id="tab-help">
+      <div class="help-content">
+
+        <!-- Chat commands -->
+        <div class="help-sec">
+          <h3>Chat commands</h3>
+          <table class="cmd-table">
+            <tr>
+              <td><span class="cmd-pill">start</span></td>
+              <td class="cmd-desc">Begin the course from Lesson 1. Use on first run.</td>
+            </tr>
+            <tr>
+              <td><span class="cmd-pill">continue</span></td>
+              <td class="cmd-desc">Resume the current open quick-check. The bot re-states the question and waits for your answer.</td>
+            </tr>
+            <tr>
+              <td><span class="cmd-pill">lesson 4</span></td>
+              <td class="cmd-desc">Jump directly to Lesson 4 — triggers a full lesson intro (mental model → example → quick-check). Also accepts <em>go to lesson 4</em>, <em>jump to lesson 4</em>, <em>skip to lesson 4</em>, <em>lesson 4 please</em>. Message must be short (≤ 60 characters).</td>
+            </tr>
+            <tr>
+              <td><span class="cmd-pill">any question</span></td>
+              <td class="cmd-desc">Ask anything off-topic — your own data, a specific function, a workflow question. The bot answers fully, then returns with <em>Back to Lesson N —</em> to pick up where you left off.</td>
+            </tr>
+          </table>
+          <div class="help-note">The course tracks 15 lessons in order, but you can jump freely. Off-topic questions are always welcome — they won't break the lesson flow.</div>
+        </div>
+
+        <!-- Lesson navigation -->
+        <div class="help-sec">
+          <h3>Lesson navigation</h3>
+          <table class="cmd-table">
+            <tr>
+              <td><span class="cmd-pill">Sidebar dropdown</span></td>
+              <td class="cmd-desc">Select any lesson from the <em>Jump to lesson</em> dropdown and click <em>Go to lesson</em>. Same result as typing "lesson N" in chat.</td>
+            </tr>
+            <tr>
+              <td><span class="cmd-pill">✓ Mark lesson complete</span></td>
+              <td class="cmd-desc">Manually mark the current lesson done if the bot didn't auto-detect it. The bot auto-detects completion when it emits a ✅ signal at the end of your correct answer — use the button if you answered correctly but the signal was missed.</td>
+            </tr>
+            <tr>
+              <td><span class="cmd-pill">Progress tab</span></td>
+              <td class="cmd-desc">Visual overview of all 15 lessons — doughnut chart (% done), bar chart (per-lesson status: green = done, blue = current, grey = pending), and a full lesson list with descriptions.</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Model & API key -->
+        <div class="help-sec">
+          <h3>Model &amp; API key</h3>
+          <table class="cmd-table">
+            <tr>
+              <td><span class="cmd-pill">Auto-detect</span></td>
+              <td class="cmd-desc">Provider is resolved from the key you paste: <em>sk-ant-…</em> → Claude, <em>sk-…</em> → OpenAI, no key → Ollama (local). The badge in the context bar shows <em>auto → claude-sonnet-4-6</em> so you always see what's actually running.</td>
+            </tr>
+            <tr>
+              <td><span class="cmd-pill">Claude / OpenAI</span></td>
+              <td class="cmd-desc">Select the provider explicitly, paste your API key, and optionally type a specific model name (e.g. <em>claude-opus-4-8</em>, <em>gpt-4o</em>). Leave the model field blank to use the default for that provider.</td>
+            </tr>
+            <tr>
+              <td><span class="cmd-pill">Ollama (local)</span></td>
+              <td class="cmd-desc">No API key needed. Requires <a href="https://ollama.com" target="_blank" style="color:var(--blue)">Ollama</a> installed and running locally. Default model: <em>llama3.2</em>. Click <em>↺</em> next to the model field to fetch your locally installed models. Pull new models with <em>ollama pull modelname</em> in a terminal.</td>
+            </tr>
+            <tr>
+              <td><span class="cmd-pill">Remember key</span></td>
+              <td class="cmd-desc">Saves the API key to <em>user_data/settings.json</em> on this machine. Unchecking removes it. Model choice and model name always save regardless.</td>
+            </tr>
+          </table>
+          <div class="help-note"><strong>Default models:</strong> Claude → claude-sonnet-4-6 &nbsp;·&nbsp; OpenAI → gpt-4o-mini &nbsp;·&nbsp; Ollama → llama3.2</div>
+        </div>
+
+        <!-- Context bar -->
+        <div class="help-sec">
+          <h3>Context bar (above the input)</h3>
+          <table class="cmd-table">
+            <tr>
+              <td><span class="cmd-pill">% fill bar</span></td>
+              <td class="cmd-desc">Estimated tokens used ÷ model context window. Green → safe. Amber → getting full. Red → compact soon or responses may degrade. <em>Ollama default: 4 096 tokens (fills fast). Claude: 200 000. GPT-4o: 128 000.</em></td>
+            </tr>
+            <tr>
+              <td><span class="cmd-pill">⊙ Compact</span></td>
+              <td class="cmd-desc">Asks the LLM to write a ~200-word summary of the session (lessons covered, concepts understood, mistakes, where you left off). Replaces the full history with that note. New messages continue from the summary. <em>Nothing is lost — progress and profile are kept.</em></td>
+            </tr>
+            <tr>
+              <td><span class="cmd-pill">✕ Clear</span></td>
+              <td class="cmd-desc">Wipes the chat history entirely. Lesson progress and profile are not affected. Use when you want a completely fresh conversation.</td>
+            </tr>
+          </table>
+          <div class="help-note">Compact is the preferred option when the bar turns red — it preserves context. Clear is a hard reset of the conversation only.</div>
+        </div>
+
+        <!-- Persistence -->
+        <div class="help-sec">
+          <h3>What saves automatically</h3>
+          <div class="help-kv">
+            <span class="k">Chat history</span>
+            <span class="v">Saved after every message (up to 80 messages). Reloads on next startup with a <em>── session resumed ──</em> divider.</span>
+            <span class="k">Lesson progress</span>
+            <span class="v">Which lessons are complete and the current lesson. Persists across restarts.</span>
+            <span class="k">Profile</span>
+            <span class="v">Your language background and use-case. Saved when you click <em>Save profile</em>.</span>
+            <span class="k">Model &amp; provider</span>
+            <span class="v">Provider choice and model name always save. API key only saves if <em>Remember key</em> is checked.</span>
+          </div>
+          <div class="help-note">All data lives in <strong>user_data/</strong> next to the app. Delete that folder to start completely fresh.</div>
+        </div>
+
+        <!-- Keyboard -->
+        <div class="help-sec">
+          <h3>Keyboard shortcuts</h3>
+          <table class="cmd-table">
+            <tr>
+              <td><span class="cmd-pill">Enter</span></td>
+              <td class="cmd-desc">Send the message.</td>
+            </tr>
+            <tr>
+              <td><span class="cmd-pill">Shift + Enter</span></td>
+              <td class="cmd-desc">New line in the message input (without sending).</td>
+            </tr>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="tab" id="tab-settings">
+      <div class="settings-content">
+
+        <div class="settings-card">
+          <div class="settings-card-title">API Keys</div>
+          <div class="sd-field">
+            <div class="sd-lbl">Anthropic (Claude) key</div>
+            <input type="password" id="claude-key" placeholder="sk-ant-…">
+          </div>
+          <div class="sd-field" style="margin-top:10px">
+            <div class="sd-lbl">OpenAI key</div>
+            <input type="password" id="openai-key" placeholder="sk-…">
+          </div>
+          <div class="sd-hint" style="margin-top:6px">No key → Ollama (local). Keys are used only in the active provider.</div>
+          <label class="cb-row" style="margin-top:8px">
+            <input type="checkbox" id="remember-key"> Save keys on this device
+          </label>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-title">Learning Plan</div>
+          <div class="sd-field">
+            <div class="sd-lbl">Goal</div>
+            <div class="depth-grid" style="margin-top:4px">
+              <button class="depth-btn goal-btn" data-goal="15">
+                <span class="db-label">Core</span>
+                <span class="db-desc">15 lessons · fundamentals</span>
+              </button>
+              <button class="depth-btn goal-btn" data-goal="22">
+                <span class="db-label">Extended</span>
+                <span class="db-desc">22 · + viz &amp; data access</span>
+              </button>
+              <button class="depth-btn goal-btn active" data-goal="30">
+                <span class="db-label">Full</span>
+                <span class="db-desc">30 · complete track</span>
+              </button>
+            </div>
+          </div>
+          <div class="sd-field" style="margin-top:14px">
+            <div class="sd-lbl" style="display:flex;justify-content:space-between">
+              Sessions per week
+              <span id="spw-val" style="font-weight:600;color:var(--tx)">3</span>
+            </div>
+            <input type="range" id="spw-range" min="1" max="7" value="3"
+                   style="width:100%;margin-top:6px;accent-color:var(--blue)">
+          </div>
+          <div class="sd-hint" id="plan-eta" style="margin-top:8px"></div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-title">Learning Pace</div>
+          <div class="sd-hint" style="margin-bottom:8px">Controls how much depth the tutor requires before advancing to the next lesson.</div>
+          <div class="depth-grid">
+            <button class="depth-btn" data-depth="fast">
+              <span class="db-label">Fast</span>
+              <span class="db-desc">One question, move on quickly</span>
+            </button>
+            <button class="depth-btn active" data-depth="standard">
+              <span class="db-label">Standard</span>
+              <span class="db-desc">Model + example + one check</span>
+            </button>
+            <button class="depth-btn" data-depth="deep">
+              <span class="db-label">Deep</span>
+              <span class="db-desc">Two exercises + real-data challenge</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-title">Appearance</div>
+          <div class="sd-field">
+            <div class="sd-lbl">Theme</div>
+            <div class="theme-grid">
+              <button class="theme-sw active" data-theme="default">
+                <span class="sw-dot" style="background:#185FA5"></span>
+                <span class="sw-lbl">Blue</span>
+              </button>
+              <button class="theme-sw" data-theme="teal">
+                <span class="sw-dot" style="background:#0d9488"></span>
+                <span class="sw-lbl">Teal</span>
+              </button>
+              <button class="theme-sw" data-theme="violet">
+                <span class="sw-dot" style="background:#7c3aed"></span>
+                <span class="sw-lbl">Violet</span>
+              </button>
+              <button class="theme-sw" data-theme="dark">
+                <span class="sw-dot" style="background:#1e293b;border:1px solid #475569"></span>
+                <span class="sw-lbl">Dark</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Confirm modal -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body"  id="modal-body"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" id="modal-cancel">Cancel</button>
+      <button class="modal-ok"     id="modal-ok">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const LANGS = ['VBA','Python','Stata','Excel'];
+const S = { history:[], progress:{current_lesson:1,completed:[],total:15,lessons:[]},
+            profile:{}, settings:{}, loading:false, donut:null, bar:null };
+
+const MODEL_SUGGESTIONS = {
+  claude: ['claude-sonnet-4-6','claude-opus-4-8','claude-haiku-4-5-20251001'],
+  openai: ['gpt-4o-mini','gpt-4o','gpt-4-turbo','gpt-3.5-turbo'],
+  ollama: ['llama3.2','llama3.1','llama3','mistral','gemma2','phi3','qwen2.5','deepseek-r1'],
+};
+const MODEL_DEFAULTS = { claude:'claude-sonnet-4-6', openai:'gpt-4o-mini', ollama:'llama3.2', auto:'' };
+
+// Context window sizes in tokens (used to compute the % bar)
+// Ollama uses 4 096 by default — warn early so users know to compact
+const CTX_WINDOWS = {
+  'claude-sonnet-4-6':200000,'claude-opus-4-8':200000,'claude-haiku-4-5-20251001':200000,
+  'gpt-4o':128000,'gpt-4o-mini':128000,'gpt-4-turbo':128000,'gpt-3.5-turbo':16385,
+  'llama3.2':4096,'llama3.1':4096,'llama3':4096,
+  'mistral':8192,'gemma2':8192,'phi3':4096,'qwen2.5':4096,'deepseek-r1':4096,
+};
+const CTX_PROVIDER_DEFAULT = { claude:200000, openai:128000, ollama:4096 };
+
+// Returns the correct API key to send for the current provider selection
+function getApiKey() {
+  const prov = getProvider();
+  if (prov === 'claude')  return document.getElementById('claude-key').value.trim();
+  if (prov === 'openai')  return document.getElementById('openai-key').value.trim();
+  if (prov === 'ollama')  return '';
+  // auto: prefer claude key, then openai key
+  const ck = document.getElementById('claude-key').value.trim();
+  const ok = document.getElementById('openai-key').value.trim();
+  return ck || ok;
+}
+
+// Mirror server-side _resolve_provider to show the real active model in the UI
+function getEffectiveModel() {
+  const choice = getProvider();
+  const ck = document.getElementById('claude-key').value.trim();
+  const ok = document.getElementById('openai-key').value.trim();
+  let prov = choice;
+  if (choice === 'auto') {
+    if (ck)      prov = 'claude';
+    else if (ok) prov = 'openai';
+    else         prov = 'ollama';
+  }
+  const model = getModelName() || MODEL_DEFAULTS[prov] || 'llama3.2';
+  return { prov, model };
+}
+
+const MODEL_HINTS = {
+  claude: 'Default: claude-sonnet-4-6',
+  openai: 'Default: gpt-4o-mini',
+  ollama: 'Default: llama3.2  ·  model must be installed via ollama pull',
+  auto:   'Provider auto-detected from API key prefix (sk-ant- → Claude, sk- → OpenAI, none → Ollama)',
+};
+
+// ── API ──────────────────────────────────────────────────────────────────────
+async function api(path, body) {
+  const r = await fetch(path, body ? {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+  } : {});
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    [S.settings, S.progress, S.profile] = await Promise.all([
+      api('/api/settings'), api('/api/progress'), api('/api/profile')
+    ]);
+  } catch(e) { console.error('Init:', e); }
+
+  // Apply saved theme (localStorage so no server round-trip needed)
+  applyTheme(localStorage.getItem('r-bot-theme') || 'default');
+
+  // Restore keys (support legacy single-key format)
+  if (S.settings.claude_key) {
+    document.getElementById('claude-key').value = S.settings.claude_key;
+    document.getElementById('remember-key').checked = true;
+  }
+  if (S.settings.openai_key) {
+    document.getElementById('openai-key').value = S.settings.openai_key;
+    document.getElementById('remember-key').checked = true;
+  }
+  // Restore goal
+  const savedGoal = S.settings.goal_lessons || 30;
+  document.querySelectorAll('.goal-btn').forEach(b =>
+    b.classList.toggle('active', parseInt(b.dataset.goal) === savedGoal));
+
+  // Restore sessions per week
+  const spwRange = document.getElementById('spw-range');
+  const savedSpw = S.settings.sessions_per_week || 3;
+  if (spwRange) spwRange.value = savedSpw;
+  const spwVal = document.getElementById('spw-val');
+  if (spwVal) spwVal.textContent = savedSpw;
+
+  // Restore depth picker
+  const savedDepth = S.settings.depth || 'standard';
+  document.querySelectorAll('.depth-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.depth === savedDepth));
+
+  // Restore active provider pill
+  const savedProv = S.settings.model_choice || 'auto';
+  document.querySelectorAll('.prov-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.prov === savedProv));
+  await updateModelSuggestions(getProvider());
+  if (S.settings.model_name) {
+    const sel = document.getElementById('model-select');
+    const models = Array.from(sel.options).map(o => o.value);
+    if (models.includes(S.settings.model_name)) {
+      sel.value = S.settings.model_name;
+    } else {
+      sel.value = '__custom__';
+      document.getElementById('model-custom').value = S.settings.model_name;
+    }
+    _syncCustomInput();
+  }
+
+  S.history = S.progress.history || [];
+  buildProfileForm();
+  updateSidebar();   // calls buildLessonPlanList internally
+  updatePlanEta();
+  renderHistory();
+  updateCtxMeter();
+}
+
+// ── Sidebar ──────────────────────────────────────────────────────────────────
+function updateSidebar() {
+  const { current_lesson, completed = [], total, lessons = [] } = S.progress;
+  const goal = getGoal();
+  const cur  = lessons.find(l => l.id === current_lesson);
+  document.getElementById('sb-num').textContent   = `Lesson ${current_lesson} of ${goal}`;
+  document.getElementById('sb-title').textContent = cur ? cur.title : '—';
+  const doneInGoal = completed.filter(id => id <= goal).length;
+  const pct = goal ? Math.round(doneInGoal / goal * 100) : 0;
+  document.getElementById('sb-fill').style.width     = pct + '%';
+  document.getElementById('sb-prog-lbl').textContent = `${doneInGoal} / ${goal} complete`;
+  buildLessonPlanList();
+}
+
+// ── Model helpers ────────────────────────────────────────────────────────────
+function getProvider()  { return document.querySelector('.prov-btn.active')?.dataset.prov || 'auto'; }
+function getModelName() {
+  const sel = document.getElementById('model-select');
+  if (!sel) return '';
+  return sel.value === '__custom__'
+    ? document.getElementById('model-custom').value.trim()
+    : (sel.value || '');
+}
+
+function _syncCustomInput() {
+  const sel = document.getElementById('model-select');
+  const inp = document.getElementById('model-custom');
+  if (sel && inp) inp.style.display = sel.value === '__custom__' ? 'block' : 'none';
+}
+
+async function updateModelSuggestions(provider) {
+  const sel  = document.getElementById('model-select');
+  const hint = document.getElementById('model-hint');
+  const btn  = document.getElementById('refresh-models-btn');
+  hint.textContent = MODEL_HINTS[provider] || '';
+  btn.style.display = provider === 'ollama' ? 'inline-block' : 'none';
+  let models = MODEL_SUGGESTIONS[provider] || [];
+  if (provider === 'ollama') models = await fetchOllamaModels();
+  if (provider === 'auto') {
+    models = [...MODEL_SUGGESTIONS.claude, ...MODEL_SUGGESTIONS.openai, ...MODEL_SUGGESTIONS.ollama];
+  }
+  const current = getModelName();
+  sel.innerHTML = '';
+  const defOpt = document.createElement('option');
+  defOpt.value = ''; defOpt.textContent = '— default —';
+  sel.appendChild(defOpt);
+  models.forEach(m => {
+    const o = document.createElement('option'); o.value = m; o.textContent = m; sel.appendChild(o);
+  });
+  const custOpt = document.createElement('option');
+  custOpt.value = '__custom__'; custOpt.textContent = 'Custom…';
+  sel.appendChild(custOpt);
+  // Only restore a preset match — never auto-switch to custom when provider changes
+  if (current && models.includes(current)) sel.value = current;
+  else { sel.value = ''; document.getElementById('model-custom').value = ''; }
+  _syncCustomInput();
+}
+
+async function fetchOllamaModels() {
+  try {
+    const data = await api('/api/ollama/models');
+    if (data.available && data.models.length) return data.models;
+  } catch {}
+  return MODEL_SUGGESTIONS.ollama;
+}
+
+// ── Chat ─────────────────────────────────────────────────────────────────────
+function renderHistory() {
+  const msgs = document.getElementById('messages');
+  msgs.innerHTML = '';
+  if (!S.history.length) { appendWelcome(); return; }
+  S.history.forEach(m => { const el = makeMsg(m.role, m.content); el.style.animation='none'; msgs.appendChild(el); });
+  // Visual-only divider — not stored in S.history, not sent to the LLM.
+  const sep = document.createElement('div');
+  sep.className = 'session-sep';
+  sep.textContent = 'session resumed';
+  msgs.appendChild(sep);
+  // Scroll so the separator is at the bottom of the viewport and the last
+  // messages are visible above it — NOT scrollBot() which would put
+  // the separator at the top and show only blank space below.
+  setTimeout(() => sep.scrollIntoView({ block: 'end', behavior: 'instant' }), 50);
+  updateCtxMeter();
+}
+
+function appendWelcome() {
+  const { current_lesson, completed, lessons } = S.progress;
+  const cur = (lessons||[]).find(l => l.id === current_lesson);
+  const txt = completed.length === 0
+    ? `**Welcome to the R Training Bot.**\n\nFill in your **Profile** tab so I can adapt my teaching style, then type **start** to begin.`
+    : `**Welcome back!** You left off at Lesson ${current_lesson}: *${cur?.title||''}*. You've completed **${completed.length} of ${(lessons||[]).length}** lessons.\n\nType **continue** to pick up where you left off, or jump to a lesson from the sidebar.`;
+  const el = makeMsg('assistant', txt);
+  el.style.animation = 'none';
+  document.getElementById('messages').appendChild(el);
+}
+
+function makeMsg(role, content) {
+  const isJump = role === 'user' && content.startsWith('→');
+  const div = document.createElement('div');
+  div.className = `message ${role}${isJump ? ' sys-msg' : ''}`;
+
+  if (!isJump) {
+    const av = document.createElement('div');
+    av.className = `avatar ${role === 'user' ? 'av-user' : 'av-tutor'}`;
+    av.textContent = role === 'user' ? 'U' : 'R';
+    div.appendChild(av);
+  }
+
+  const bub = document.createElement('div');
+  bub.className = 'bubble';
+  bub.innerHTML = isJump ? escHtml(content) : renderMd(content);
+  div.appendChild(bub);
+  return div;
+}
+
+function appendMsg(role, content) {
+  const el = makeMsg(role, content);
+  document.getElementById('messages').appendChild(el);
+  scrollBot();
+}
+
+function scrollBot() {
+  const m = document.getElementById('messages');
+  setTimeout(() => m.scrollTop = m.scrollHeight, 50);
+}
+
+function renderMd(text) {
+  if (typeof marked === 'undefined') return escHtml(text);
+  let html = marked.parse(text, { gfm:true, breaks:true });
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  if (typeof hljs !== 'undefined') d.querySelectorAll('pre code').forEach(b => hljs.highlightElement(b));
+  d.querySelectorAll('pre').forEach(pre => {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn'; btn.textContent = 'Copy';
+    btn.addEventListener('click', () => {
+      const code = pre.querySelector('code');
+      navigator.clipboard.writeText(code ? code.innerText : pre.innerText).then(() => {
+        btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000);
+      });
+    });
+    pre.appendChild(btn);
+  });
+  return d.innerHTML;
+}
+
+function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function sendMessage() {
+  if (S.loading) return;
+  const inp = document.getElementById('msg-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = ''; autoResize(inp);
+
+  // Auto-detect "lesson 4" / "go to lesson 4" / "jump to lesson 4" etc.
+  const jumpId = detectLessonJump(text);
+  if (jumpId) { await doJumpById(jumpId); return; }
+
+  appendMsg('user', text);
+  const typing = showTyping();
+  setLoading(true);
+
+  try {
+    const data = await api('/api/chat', {
+      message: text,
+      history: S.history,
+      api_key:      getApiKey(),
+      model_choice: getProvider(),
+      model_name:   getModelName(),
+    });
+    removeTyping(typing);
+    appendMsg('assistant', data.reply);
+    S.history.push({role:'user',content:text},{role:'assistant',content:data.reply});
+    updateCtxMeter();
+    const mc = S.history.length;
+    if      (mc >= 80) toast('History at 80-message limit — use ⊙ Compact to continue with context', 'error');
+    else if (mc === 76) toast(`76 / 80 messages — compact soon to avoid losing context`, 'info');
+    else if (mc === 70) toast(`70 / 80 messages — approaching limit`, 'info');
+    if (data.lesson_completed) {
+      S.progress.completed = data.completed;
+      S.progress.current_lesson = data.current_lesson;
+      updateSidebar();
+      toast(`✓ Lesson ${data.lesson_completed} complete`, 'success');
+    }
+  } catch(e) {
+    removeTyping(typing);
+    appendMsg('assistant', `**Error:** ${e.message}. Check that your model is running and your API key is correct.`);
+  }
+  setLoading(false);
+  document.getElementById('msg-input').focus();
+}
+
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'message assistant'; div.id = 'typing';
+  div.innerHTML = `<div class="avatar av-tutor">R</div><div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(div); scrollBot(); return div;
+}
+function removeTyping(el) { if (el?.parentNode) el.parentNode.removeChild(el); }
+function setLoading(v) {
+  S.loading = v;
+  document.getElementById('send-btn').disabled = v;
+}
+
+async function doJumpById(id) {
+  if (!id || S.loading) return;
+  const title = S.progress.lessons.find(l => l.id === id)?.title || '';
+  setLoading(true);
+  const typing = showTyping();
+  try {
+    const data = await api('/api/jump', {
+      lesson_id: id, history: S.history,
+      api_key:      getApiKey(),
+      model_choice: getProvider(),
+      model_name:   getModelName(),
+    });
+    removeTyping(typing);
+    S.history.push(
+      {role:'user',content:`→ Lesson ${id}: ${title}`},
+      {role:'assistant',content:data.reply}
+    );
+    appendMsg('user', `→ Lesson ${id}: ${title}`);
+    appendMsg('assistant', data.reply);
+    S.progress.current_lesson = id;
+    updateSidebar();
+    updateCtxMeter();
+    switchTab('chat');
+  } catch(e) { removeTyping(typing); appendMsg('assistant', `Error: ${e.message}`); }
+  setLoading(false);
+}
+
+function getGoal() {
+  return parseInt(document.querySelector('.goal-btn.active')?.dataset.goal || 30);
+}
+
+function updatePlanEta() {
+  const goal = getGoal();
+  const spw  = parseInt(document.getElementById('spw-range')?.value || 3);
+  const spwVal = document.getElementById('spw-val');
+  if (spwVal) spwVal.textContent = spw;
+  const eta  = document.getElementById('plan-eta');
+  if (!eta) return;
+  const completed = (S.progress.completed || []).filter(id => id <= goal).length;
+  const remaining = Math.max(0, goal - completed);
+  if (remaining === 0) { eta.textContent = 'All planned lessons complete!'; return; }
+  const weeks = Math.ceil(remaining / spw);
+  const end = new Date();
+  end.setDate(end.getDate() + weeks * 7);
+  const ds = end.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  eta.textContent = `${remaining} lessons left · ${spw}/week → ~${weeks} weeks (${ds})`;
+}
+
+function buildLessonPlanList() {
+  const list  = document.getElementById('lesson-plan-list');
+  const badge = document.getElementById('plan-badge');
+  if (!list) return;
+  list.innerHTML = '';
+  const { completed = [], current_lesson = 1, lessons = [] } = S.progress;
+  const goal = getGoal();
+  let dividerAdded = false;
+  lessons.forEach(l => {
+    const done = completed.includes(l.id);
+    const cur  = l.id === current_lesson;
+    const out  = l.id > goal;
+    if (out && !dividerAdded) {
+      dividerAdded = true;
+      const div = document.createElement('div');
+      div.className = 'lpr-divider';
+      div.textContent = 'beyond current goal';
+      list.appendChild(div);
+    }
+    const row  = document.createElement('div');
+    row.className = 'lpr' + (done ? ' lpr-done' : cur ? ' lpr-cur' : '') + (out ? ' lpr-out' : '');
+    row.title = l.description || '';
+    row.innerHTML = `<span class="lpr-ico">${done ? '✓' : cur ? '▶' : '○'}</span>`
+                  + `<span class="lpr-txt">${l.id}. ${l.title}</span>`;
+    row.addEventListener('click', () => doJumpById(l.id));
+    list.appendChild(row);
+    if (cur) setTimeout(() => row.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 80);
+  });
+  if (badge) {
+    const done = (completed || []).filter(id => id <= goal).length;
+    badge.textContent = `${done} / ${goal}`;
+  }
+}
+
+// Returns lesson id if the message is a navigation command, else null.
+function detectLessonJump(text) {
+  if (text.length > 80) return null;
+  const t = text.trim().toLowerCase();
+  const total = S.progress.total || 30;
+  const cur   = S.progress.current_lesson || 1;
+
+  // "lesson N" / "go to lesson N" / "jump to lesson N"
+  const mNum = text.match(/\blesson\s+(\d{1,2})\b/i);
+  if (mNum) {
+    const id = parseInt(mNum[1]);
+    return (id >= 1 && id <= total) ? id : null;
+  }
+
+  // "next" / "next lesson" / "skip" / "continue" / "move on" / "keep going"
+  if (/^(next(\s+lesson)?|skip(\s+this)?|continue|move\s+on|keep\s+going|next\s+one)$/.test(t)) {
+    return cur < total ? cur + 1 : null;
+  }
+
+  return null;
+}
+
+function updateCtxMeter() {
+  const chars  = S.history.reduce((n, m) => n + String(m.content || '').length, 0);
+  const tokens = Math.round(chars / 4);
+  const { prov, model } = getEffectiveModel();
+  const ctxWin = CTX_WINDOWS[model] ?? CTX_PROVIDER_DEFAULT[prov] ?? 4096;
+  const pct    = Math.min(tokens / ctxWin, 1);
+  const pctN   = Math.round(pct * 100);
+
+  const fill  = document.getElementById('ctx-fill');
+  const lbl   = document.getElementById('ctx-lbl');
+  const badge = document.getElementById('model-badge');
+  if (!fill || !lbl) return;
+
+  fill.style.width = pctN + '%';
+  fill.className   = 'ctx-fill' + (pct > .7 ? ' high' : pct > .4 ? ' mid' : '');
+
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'k' : n;
+  lbl.textContent = `${pctN}%  ·  ~${fmt(tokens)} / ${fmt(ctxWin)} tokens`;
+
+  const msgPill = document.getElementById('msg-pill');
+  if (msgPill) {
+    const n = S.history.length;
+    msgPill.textContent = `${n} / 80 msgs`;
+    msgPill.className = 'msg-pill' + (n >= 80 ? ' full' : n >= 70 ? ' warn' : '');
+  }
+
+  if (badge) {
+    const choice = getProvider();
+    badge.textContent = choice === 'auto' ? `auto → ${model}` : model;
+    badge.title = `Provider: ${prov}  ·  Context window: ${fmt(ctxWin)} tokens`;
+  }
+}
+
+async function doCompact() {
+  if (S.loading) return;
+  if (!S.history.length) { toast('Nothing to compact yet', 'info'); return; }
+  if (!await showConfirm('Compact the chat?', 'The conversation will be summarised into a short context note and the chat will continue from there. Your lesson progress is kept.', 'Compact')) return;
+  setLoading(true);
+  const typing = showTyping();
+  try {
+    const data = await api('/api/compact', {
+      history:      S.history,
+      api_key:      getApiKey(),
+      model_choice: getProvider(),
+      model_name:   getModelName(),
+    });
+    removeTyping(typing);
+    S.history = [
+      {role:'user',      content:'→ [Session compacted — previous history summarised]'},
+      {role:'assistant', content:`**Session context loaded.**\n\n${data.summary}\n\nType **continue** to pick up where we left off.`},
+    ];
+    await api('/api/history/save', {history: S.history});
+    renderHistory();
+    toast('Chat compacted', 'success');
+  } catch(e) {
+    removeTyping(typing);
+    toast('Compact failed: ' + e.message, 'error');
+  }
+  setLoading(false);
+}
+
+async function doClearChat() {
+  if (!await showConfirm('Clear chat history?', 'Your lesson progress and profile are kept. Only the conversation is cleared.', 'Clear')) return;
+  S.history = [];
+  await api('/api/history/clear', {});
+  renderHistory();
+  toast('Chat cleared', 'info');
+}
+
+async function markComplete() {
+  try {
+    S.progress = await api('/api/progress/complete', {});
+    updateSidebar();
+    toast('✓ Lesson marked complete', 'success');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function exportChat() {
+  try {
+    const res = await fetch('/api/export', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({history: S.history})
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'r_training_export.md';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+  } catch(e) { toast('Export failed: ' + e.message, 'error'); }
+}
+
+// ── Progress tab ─────────────────────────────────────────────────────────────
+function renderProgress() {
+  const { completed, current_lesson, total, lessons } = S.progress;
+  document.getElementById('st-done').textContent = completed.length;
+  document.getElementById('st-cur').textContent  = current_lesson;
+  document.getElementById('st-rem').textContent  = total - completed.length;
+  document.getElementById('donut-lbl').textContent = `${completed.length}/${total}`;
+  renderCharts();
+  renderLessonList();
+}
+
+function renderCharts() {
+  const { completed, current_lesson, total, lessons } = S.progress;
+
+  const dCtx = document.getElementById('donut-c').getContext('2d');
+  if (S.donut) S.donut.destroy();
+  S.donut = new Chart(dCtx, {
+    type: 'doughnut',
+    data: { datasets: [{ data: [completed.length, total - completed.length],
+      backgroundColor: ['#16a34a','#e2e8f0'], borderWidth: 0, hoverOffset: 4 }] },
+    options: { cutout:'72%', responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{display:false}, tooltip:{enabled:false} }, animation:{duration:500} }
+  });
+
+  const bCtx = document.getElementById('bar-c').getContext('2d');
+  if (S.bar) S.bar.destroy();
+  const lbls   = (lessons||[]).map(l => `L${l.id}  ${l.title.length>24?l.title.slice(0,24)+'…':l.title}`);
+  const colors = (lessons||[]).map(l => completed.includes(l.id)?'#16a34a':l.id===current_lesson?'#185FA5':'#e2e8f0');
+  const vals   = (lessons||[]).map(l => completed.includes(l.id)?1:l.id===current_lesson?.65:.25);
+
+  S.bar = new Chart(bCtx, {
+    type: 'bar',
+    data: { labels: lbls, datasets: [{ data:vals, backgroundColor:colors, borderRadius:4, borderSkipped:false }] },
+    options: {
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{enabled:false} },
+      scales:{
+        x:{ display:false, max:1.1 },
+        y:{ grid:{display:false}, ticks:{font:{size:11}, color:'#475569'} }
+      },
+      animation:{duration:500}
+    }
+  });
+}
+
+function renderLessonList() {
+  const { completed, current_lesson, lessons } = S.progress;
+  const container = document.getElementById('lesson-list');
+  container.innerHTML = '';
+  (lessons||[]).forEach(l => {
+    const done = completed.includes(l.id);
+    const cur  = l.id === current_lesson;
+    const div = document.createElement('div');
+    div.className = `li ${done?'li-done-item':cur?'li-current':''}`;
+    const iconCls = done?'li-done':cur?'li-cur':'li-pend';
+    const icon    = done?'✓':cur?'▶':'○';
+    div.innerHTML = `
+      <div class="li-icon ${iconCls}">${icon}</div>
+      <div class="li-body">
+        <div class="li-title">Lesson ${l.id}: ${l.title}</div>
+        <div class="li-desc">${l.description}</div>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+async function resetProgress() {
+  if (!await showConfirm('Reset all progress?', 'This will clear your completed lessons and return to Lesson 1. This cannot be undone.', 'Reset')) return;
+  S.progress = await api('/api/progress/reset', {});
+  S.history = [];
+  updateSidebar();
+  renderProgress();
+  toast('Progress reset', 'info');
+}
+
+// ── Profile ───────────────────────────────────────────────────────────────────
+function buildProfileForm() {
+  const grid = document.getElementById('lang-grid');
+  grid.innerHTML = '';
+  const existing = {};
+  (S.profile.languages||[]).forEach(l => { existing[l.name] = l.level; });
+
+  LANGS.forEach(lang => {
+    const sel = lang in existing;
+    const lvl = existing[lang] || 'Intermediate';
+    const card = document.createElement('div');
+    card.className = `lang-card${sel?' sel':''}`;
+    card.innerHTML = `
+      <div class="lang-hdr">
+        <input type="checkbox" id="lc-${lang}" ${sel?'checked':''}>
+        <label for="lc-${lang}">${lang}</label>
+      </div>
+      <div class="level-row">
+        ${['Beginner','Intermediate','Advanced'].map(lv =>
+          `<button class="lv-btn${lv===lvl?' active':''}" data-lang="${lang}" data-lv="${lv}">${lv}</button>`
+        ).join('')}
+      </div>`;
+    card.querySelector(`#lc-${lang}`).addEventListener('change', e =>
+      card.classList.toggle('sel', e.target.checked));
+    card.querySelectorAll('.lv-btn').forEach(b => b.addEventListener('click', () => {
+      card.querySelectorAll('.lv-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    }));
+    grid.appendChild(card);
+  });
+
+  document.getElementById('uc-input').value = S.profile.use_case || '';
+}
+
+async function saveProfile() {
+  const languages = [];
+  LANGS.forEach(lang => {
+    const cb = document.getElementById(`lc-${lang}`);
+    if (cb?.checked) {
+      const active = document.querySelector(`[data-lang="${lang}"].active`);
+      languages.push({name: lang, level: active?.dataset.lv || 'Intermediate'});
+    }
+  });
+  const use_case = document.getElementById('uc-input').value.trim();
+  try {
+    await api('/api/profile', {languages, use_case});
+    S.profile = {languages, use_case};
+    const ok = document.getElementById('save-ok');
+    ok.textContent = '✓ Saved'; setTimeout(() => ok.textContent='', 3000);
+    toast('Profile saved', 'success');
+  } catch(e) { toast('Save failed: ' + e.message, 'error'); }
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function getDepth() {
+  return document.querySelector('.depth-btn.active')?.dataset.depth || 'standard';
+}
+
+async function saveSettings() {
+  await api('/api/settings', {
+    claude_key:        document.getElementById('claude-key').value,
+    openai_key:        document.getElementById('openai-key').value,
+    model_choice:      getProvider(),
+    model_name:        getModelName(),
+    remember_key:      document.getElementById('remember-key').checked,
+    depth:             getDepth(),
+    goal_lessons:      getGoal(),
+    sessions_per_week: parseInt(document.getElementById('spw-range')?.value || 3),
+  }).catch(()=>{});
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelector(`[data-tab="${id}"]`).classList.add('active');
+  if (id === 'progress') renderProgress();
+}
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
+function applyTheme(name) {
+  if (name === 'default') document.documentElement.removeAttribute('data-theme');
+  else                    document.documentElement.setAttribute('data-theme', name);
+  document.querySelectorAll('.theme-sw').forEach(b =>
+    b.classList.toggle('active', b.dataset.theme === name));
+  localStorage.setItem('r-bot-theme', name);
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
+
+function toast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = `toast t-${type}`; t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+function showConfirm(title, body, okLabel='OK') {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('confirm-modal');
+    document.getElementById('modal-title').textContent  = title;
+    document.getElementById('modal-body').textContent   = body;
+    document.getElementById('modal-ok').textContent     = okLabel;
+    const ok     = document.getElementById('modal-ok');
+    const cancel = document.getElementById('modal-cancel');
+    const close  = v => { overlay.classList.remove('show'); ok.onclick = null; cancel.onclick = null; resolve(v); };
+    ok.onclick     = () => close(true);
+    cancel.onclick = () => close(false);
+    overlay.onclick = e => { if (e.target === overlay) close(false); };
+    overlay.classList.add('show');
+    ok.focus();
+  });
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+document.getElementById('send-btn').addEventListener('click', sendMessage);
+document.getElementById('msg-input').addEventListener('keydown', e => {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+document.getElementById('msg-input').addEventListener('input', e => autoResize(e.target));
+// Goal buttons
+document.querySelectorAll('.goal-btn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.goal-btn').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  updatePlanEta();
+  buildLessonPlanList();
+  updateSidebar();
+  saveSettings();
+}));
+// Sessions per week
+document.getElementById('spw-range').addEventListener('input', () => {
+  updatePlanEta();
+  saveSettings();
+});
+document.getElementById('mark-btn').addEventListener('click', markComplete);
+document.getElementById('export-btn').addEventListener('click', exportChat);
+document.getElementById('compact-btn').addEventListener('click', doCompact);
+document.getElementById('clear-chat-btn').addEventListener('click', doClearChat);
+document.getElementById('save-prof-btn').addEventListener('click', saveProfile);
+document.getElementById('refresh-btn').addEventListener('click', async () => {
+  S.progress = await api('/api/progress'); updateSidebar(); renderProgress();
+});
+document.getElementById('reset-btn').addEventListener('click', resetProgress);
+// API keys (in Settings tab)
+document.getElementById('remember-key').addEventListener('change', saveSettings);
+document.getElementById('claude-key').addEventListener('blur', () => { saveSettings(); updateCtxMeter(); });
+document.getElementById('openai-key').addEventListener('blur', () => { saveSettings(); updateCtxMeter(); });
+document.getElementById('claude-key').addEventListener('input', updateCtxMeter);
+document.getElementById('openai-key').addEventListener('input', updateCtxMeter);
+// Model select & provider pills (sidebar)
+document.getElementById('model-select').addEventListener('change', () => { _syncCustomInput(); saveSettings(); updateCtxMeter(); });
+document.getElementById('model-custom').addEventListener('blur', () => { saveSettings(); updateCtxMeter(); });
+document.querySelectorAll('.prov-btn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.prov-btn').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  updateModelSuggestions(b.dataset.prov);
+  saveSettings();
+  updateCtxMeter();
+}));
+// Depth picker
+document.querySelectorAll('.depth-btn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.depth-btn').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  saveSettings();
+}));
+// Theme swatches
+document.querySelectorAll('.theme-sw').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.theme)));
+// Ollama model refresh
+document.getElementById('refresh-models-btn').addEventListener('click', () => fetchOllamaModels().then(models => {
+  const sel = document.getElementById('model-select');
+  const custOpt = sel.querySelector('[value="__custom__"]');
+  Array.from(sel.options).forEach(o => { if (o.value && o.value !== '__custom__') o.remove(); });
+  models.forEach(m => {
+    const o = document.createElement('option'); o.value = m; o.textContent = m;
+    sel.insertBefore(o, custOpt);
+  });
+  toast(`${models.length} Ollama model${models.length!==1?'s':''} found`, 'info');
+}));
+document.querySelectorAll('.tab-btn').forEach(b =>
+  b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+init();
+</script>
+</body>
+</html>

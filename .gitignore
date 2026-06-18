@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+.gradio/
+user_data/
+dist/
+build/
+*.spec
