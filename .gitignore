@@ -6,3 +6,6 @@ user_data/
 dist/
 build/
 *.spec
+
+# Claude Code — keep launch.json (dev convenience), ignore machine-local settings
+.claude/settings.local.json

@@ -404,6 +404,17 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
 .lpr-txt{font-size:11px;color:var(--tx2);line-height:1.3}
 .lpr-divider{font-size:9px;color:var(--tx3);text-align:center;padding:5px 0 3px;
   letter-spacing:.06em;border-top:1px solid var(--bd);margin-top:2px}
+/* ── Adaptive treatment badges ── */
+.tb{display:inline-block;font-size:9px;font-weight:600;letter-spacing:.02em;
+  padding:1px 5px;border-radius:8px;margin-left:4px;vertical-align:middle;white-space:nowrap}
+.tb-fast{background:#fef3c7;color:#92400e}
+.tb-opt{background:var(--bg3);color:var(--tx3)}
+.lpr-rec{font-size:11px;color:var(--blue);background:var(--blue-50);
+  border:1px solid rgba(24,95,165,.15);border-radius:6px;padding:6px 8px;
+  margin-bottom:6px;cursor:pointer;line-height:1.3}
+.lpr-rec:hover{background:#dceafe}
+.lpr-rec-lbl{display:block;font-size:9px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--tx3);margin-bottom:1px}
 /* ── Model select ── */
 .model-sel-row{display:flex;align-items:center;gap:4px;margin-top:6px}
 #model-select{flex:1;padding:7px 8px;border:1px solid var(--bd);border-radius:var(--r);
@@ -547,7 +558,7 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
     <div class="tab" id="tab-profile">
       <div class="prof-content">
         <div class="prof-intro">
-          Tell the bot your programming background — it adapts analogies and examples to what you already know. You can update this at any time.
+          Tell the bot your programming background — it adapts analogies and examples to what you already know. Set your <strong>R</strong> level too: the lesson plan adapts to it, fast-tracking or marking optional the lessons you likely already know. You can update this at any time.
         </div>
         <div>
           <div class="sb-lbl" style="font-size:12px;margin-bottom:10px">Languages you know</div>
@@ -805,8 +816,8 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-const LANGS = ['VBA','Python','Stata','Excel'];
-const S = { history:[], progress:{current_lesson:1,completed:[],total:15,lessons:[]},
+const LANGS = ['Python','VBA','R','Excel','Stata'];
+const S = { history:[], progress:{current_lesson:1,completed:[],total:15,lessons:[],recommended_start:1},
             profile:{}, settings:{}, loading:false, donut:null, bar:null };
 
 const MODEL_SUGGESTIONS = {
@@ -1184,13 +1195,32 @@ function updatePlanEta() {
   eta.textContent = `${remaining} lessons left · ${spw}/week → ~${weeks} weeks (${ds})`;
 }
 
+// Small badge marking how a lesson is adapted to the user's declared R level.
+function treatmentBadge(t) {
+  if (t === 'fast')     return `<span class="tb tb-fast" title="You likely know this — quick refresher + a check">fast-track</span>`;
+  if (t === 'optional') return `<span class="tb tb-opt" title="You may already know this — option to skip">optional</span>`;
+  return '';
+}
+
 function buildLessonPlanList() {
   const list  = document.getElementById('lesson-plan-list');
   const badge = document.getElementById('plan-badge');
   if (!list) return;
   list.innerHTML = '';
-  const { completed = [], current_lesson = 1, lessons = [] } = S.progress;
+  const { completed = [], current_lesson = 1, lessons = [], recommended_start = 1 } = S.progress;
   const goal = getGoal();
+
+  // Nudge a fresh user toward the first lesson worth their declared R level
+  if (!completed.length && recommended_start > current_lesson) {
+    const rec  = lessons.find(l => l.id === recommended_start);
+    const hint = document.createElement('div');
+    hint.className = 'lpr-rec';
+    hint.title = 'Based on your R level. Click to start here — earlier lessons stay available.';
+    hint.innerHTML = `<span class="lpr-rec-lbl">Suggested start</span> Lesson ${recommended_start}: ${rec ? rec.title : ''} →`;
+    hint.addEventListener('click', () => doJumpById(recommended_start));
+    list.appendChild(hint);
+  }
+
   let dividerAdded = false;
   lessons.forEach(l => {
     const done = completed.includes(l.id);
@@ -1207,7 +1237,8 @@ function buildLessonPlanList() {
     row.className = 'lpr' + (done ? ' lpr-done' : cur ? ' lpr-cur' : '') + (out ? ' lpr-out' : '');
     row.title = l.description || '';
     row.innerHTML = `<span class="lpr-ico">${done ? '✓' : cur ? '▶' : '○'}</span>`
-                  + `<span class="lpr-txt">${l.id}. ${l.title}</span>`;
+                  + `<span class="lpr-txt">${l.id}. ${l.title}</span>`
+                  + (done ? '' : treatmentBadge(l.treatment));
     row.addEventListener('click', () => doJumpById(l.id));
     list.appendChild(row);
     if (cur) setTimeout(() => row.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 80);
@@ -1391,7 +1422,7 @@ function renderLessonList() {
     div.innerHTML = `
       <div class="li-icon ${iconCls}">${icon}</div>
       <div class="li-body">
-        <div class="li-title">Lesson ${l.id}: ${l.title}</div>
+        <div class="li-title">Lesson ${l.id}: ${l.title} ${done ? '' : treatmentBadge(l.treatment)}</div>
         <div class="li-desc">${l.description}</div>
       </div>`;
     container.appendChild(div);
@@ -1454,6 +1485,10 @@ async function saveProfile() {
   try {
     await api('/api/profile', {languages, use_case});
     S.profile = {languages, use_case};
+    // R level reshapes the lesson plan — refresh so badges & suggested start update
+    S.progress = await api('/api/progress');
+    updateSidebar();
+    renderProgress();
     const ok = document.getElementById('save-ok');
     ok.textContent = '✓ Saved'; setTimeout(() => ok.textContent='', 3000);
     toast('Profile saved', 'success');
