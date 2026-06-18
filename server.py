@@ -23,6 +23,7 @@ from data_manager import (
     load_settings, save_settings,
 )
 from prompt_builder import build_system_prompt
+from curriculum import plan_for, recommended_start
 from llm_router import chat as llm_chat
 
 
@@ -61,7 +62,9 @@ class ChatReq(BaseModel):
 
 @app.post("/api/chat")
 def chat(req: ChatReq):
-    sp = build_system_prompt(load_profile(), depth=load_settings().get("depth", "standard"))
+    cur = load_progress().get("current_lesson", 1)
+    sp = build_system_prompt(load_profile(), depth=load_settings().get("depth", "standard"),
+                             current_lesson=cur)
     msgs = [{"role": m["role"], "content": _extract(m["content"])} for m in req.history]
     msgs.append({"role": "user", "content": req.message})
 
@@ -100,7 +103,8 @@ class JumpReq(BaseModel):
 @app.post("/api/jump")
 def jump(req: JumpReq):
     set_current_lesson(req.lesson_id)
-    sp    = build_system_prompt(load_profile(), depth=load_settings().get("depth", "standard"))
+    sp    = build_system_prompt(load_profile(), depth=load_settings().get("depth", "standard"),
+                                current_lesson=req.lesson_id)
     title = LESSON_TITLES.get(req.lesson_id, "")
     instr = (f"Please start teaching Lesson {req.lesson_id}: {title}. "
              "Begin with the mental model in 2–3 sentences, then a short example, "
@@ -123,12 +127,16 @@ def jump(req: JumpReq):
 
 def _prog():
     p = load_progress()
+    profile = load_profile()
+    plan = plan_for(profile)
+    lessons = [{**l, "treatment": plan.get(l["id"], "full")} for l in LESSONS]
     return {
-        "current_lesson": p.get("current_lesson", 1),
-        "completed":      p.get("completed", []),
-        "history":        p.get("history", []),
-        "total":          len(LESSONS),
-        "lessons":        LESSONS,
+        "current_lesson":    p.get("current_lesson", 1),
+        "completed":         p.get("completed", []),
+        "history":           p.get("history", []),
+        "total":             len(LESSONS),
+        "lessons":           lessons,
+        "recommended_start": recommended_start(profile, p.get("completed", [])),
     }
 
 
