@@ -563,24 +563,133 @@ _STATA = [
     },
 ]
 
-# ── VBA — SEED curriculum (to be expanded in Phase 2) ─────────────────────────
+# ── VBA — for someone who already codes, learning idiomatic Excel VBA (20) ────
 _VBA = [
+    # ── Tier 1: VBA basics & the object model ────────────────────────────────
     {
         "id": 1,
-        "title": "Subs, variables & the object model",
-        "description": "Sub vs Function; Dim and types; Range / Cells; Workbook / Worksheet objects",
+        "title": "The editor, macros & Option Explicit",
+        "description": "The VBE; modules; Sub procedures; running macros; why Option Explicit is non-negotiable",
         "level": "basic",
     },
     {
         "id": 2,
-        "title": "Control flow & loops",
-        "description": "If/Then/Else, Select Case, For/Next, For Each, Do While/Until",
+        "title": "Variables & data types",
+        "description": "Dim; Long/Double/String/Boolean/Date/Variant; Const; scope (procedure/module); Set for objects",
         "level": "basic",
     },
     {
         "id": 3,
-        "title": "Working with ranges efficiently",
-        "description": "Reading a Range into a variant array, .Value, avoiding slow cell-by-cell loops",
+        "title": "The Excel object model",
+        "description": "Application → Workbook → Worksheet → Range; properties vs methods; ActiveSheet pitfalls",
+        "level": "basic",
+    },
+
+    # ── Tier 2: Working with the worksheet ───────────────────────────────────
+    {
+        "id": 4,
+        "title": "Referring to ranges & cells",
+        "description": "Range vs Cells(r,c); Offset; Resize; Rows/Columns; named ranges; qualifying with the sheet",
+        "level": "basic",
+    },
+    {
+        "id": 5,
+        "title": "Reading & writing values",
+        "description": ".Value vs .Value2 vs .Text vs .Formula; writing a whole block at once; clearing cells",
+        "level": "basic",
+    },
+    {
+        "id": 6,
+        "title": "Control flow",
+        "description": "If/ElseIf/Else; Select Case; comparison & logical operators; And/Or short-circuit caveat",
+        "level": "basic",
+    },
+    {
+        "id": 7,
+        "title": "Loops",
+        "description": "For/Next; For Each over a Range/collection; Do While/Until; Exit For; Step",
+        "level": "basic",
+    },
+    {
+        "id": 8,
+        "title": "Finding the data",
+        "description": "UsedRange; End(xlUp)/End(xlToRight); CurrentRegion; computing last row/column robustly",
+        "level": "intermediate",
+    },
+
+    # ── Tier 3: Idioms & robustness ──────────────────────────────────────────
+    {
+        "id": 9,
+        "title": "Ranges as arrays (the big perf idiom)",
+        "description": "Read a Range into a Variant array, process in memory, write back once — not cell-by-cell",
+        "level": "intermediate",
+    },
+    {
+        "id": 10,
+        "title": "Performance & With blocks",
+        "description": "Application.ScreenUpdating / .Calculation / .EnableEvents; With blocks; restore in cleanup",
+        "level": "intermediate",
+    },
+    {
+        "id": 11,
+        "title": "Functions vs Subs",
+        "description": "Function return values; ByRef vs ByVal; Optional args; passing ranges/arrays to procedures",
+        "level": "intermediate",
+    },
+    {
+        "id": 12,
+        "title": "Error handling",
+        "description": "On Error GoTo / Resume Next; the Err object; a clean single-exit pattern with cleanup",
+        "level": "intermediate",
+    },
+    {
+        "id": 13,
+        "title": "Collections & Dictionaries",
+        "description": "Collection; Scripting.Dictionary for fast lookups, dedup & counting; exists/keys/items",
+        "level": "intermediate",
+    },
+    {
+        "id": 14,
+        "title": "Strings & text",
+        "description": "& concatenation; Left/Right/Mid/InStr/Replace/Split/Trim; Format; building output strings",
+        "level": "intermediate",
+    },
+    {
+        "id": 15,
+        "title": "Dates & numbers",
+        "description": "Date/Now; DateAdd/DateDiff/DatePart; Format for display; numeric rounding & formatting",
+        "level": "intermediate",
+    },
+
+    # ── Tier 4: Interacting & automating ─────────────────────────────────────
+    {
+        "id": 16,
+        "title": "Workbooks & worksheets",
+        "description": "Workbooks.Open/Add/Save/Close; referencing sheets by name safely; Set workbook variables",
+        "level": "intermediate",
+    },
+    {
+        "id": 17,
+        "title": "Events",
+        "description": "Worksheet_Change / Workbook_Open / BeforeSave; disabling events to avoid recursion",
+        "level": "advanced",
+    },
+    {
+        "id": 18,
+        "title": "User interaction",
+        "description": "MsgBox & InputBox; Application.GetOpenFilename; UserForm basics & common controls",
+        "level": "intermediate",
+    },
+    {
+        "id": 19,
+        "title": "Files & other applications",
+        "description": "Reading/writing text files; FileSystemObject; early vs late binding for Word/Outlook",
+        "level": "advanced",
+    },
+    {
+        "id": 20,
+        "title": "Putting it together",
+        "description": "Refactor a recorded macro: remove Select/Activate, add variables, errors, and structure",
         "level": "intermediate",
     },
 ]
@@ -599,7 +708,7 @@ DEFAULT_LANGUAGE = "R"
 
 # Languages whose curriculum is fully authored and selectable by users.
 # Others appear in the picker as "coming soon" until their curriculum is written.
-READY_LANGUAGES = ["R", "Python", "Stata"]
+READY_LANGUAGES = ["R", "Python", "Stata", "VBA"]
 
 # Goal milestones per language: (label, lesson count, short hint). The final
 # milestone is the full curriculum. Languages without an entry default to a single
@@ -619,6 +728,11 @@ GOALS = {
         ("Core",     11, "data basics & manipulation"),
         ("Extended", 16, "+ by-group, reshape, merge"),
         ("Full",     24, "complete track"),
+    ],
+    "VBA": [
+        ("Core",      8, "basics & the worksheet"),
+        ("Extended", 15, "+ arrays, perf, errors"),
+        ("Full",     20, "complete track"),
     ],
 }
 
