@@ -15,24 +15,37 @@ Features:
 
 ---
 
-## Option A — Standalone .exe (no Python required)
+## Option A — Standalone app (no Python required)
 
-Recommended for sharing with colleagues who don't have Python.
+For sharing with colleagues: they download **one file** and run it — no Python, no `pip`.
+The Python interpreter and all dependencies are bundled inside the build.
 
-### Step 1 — Build the exe (once, on your machine)
+### Step 1 — Get the build
+
+**Download from Releases (recommended).** Grab the latest from the
+[Releases page](https://github.com/barroargh/R_Tutorial_Bot/releases):
+
+- Windows → `R_Training_Bot-Windows.exe`
+- macOS → `R_Training_Bot-macOS.zip`
+
+These are built automatically by GitHub Actions (`.github/workflows/build.yml`). To cut a
+new release, push a version tag — CI builds both platforms and attaches them:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+**Or build it yourself** (one-time, needs Python on *your* machine only):
 
 ```bash
 pip install -r requirements.txt
 python build.py
 ```
 
-This creates `dist/R_Training_Bot.exe`.
+→ `dist/R_Training_Bot.exe` (Windows) or `dist/R_Training_Bot` (macOS).
 
-### Step 2 — Share the exe
-
-Copy `dist/R_Training_Bot.exe` to any Windows machine. No installation needed.
-
-### Step 3 — Set up a model (on each machine)
+### Step 2 — Set up a model (on each machine)
 
 **Ollama (free, no API key)**
 
@@ -48,10 +61,17 @@ Copy `dist/R_Training_Bot.exe` to any Windows machine. No installation needed.
 No local install needed. Paste your key in the app's Settings tab.
 Keys are not stored unless you tick "Remember key".
 
-### Step 4 — Run
+### Step 3 — Run
 
-Double-click `R_Training_Bot.exe`. The browser opens automatically at
-`http://127.0.0.1:7860`.
+- **Windows:** double-click `R_Training_Bot.exe`. If SmartScreen warns about an unknown
+  publisher, click **More info → Run anyway** (the build is unsigned).
+- **macOS:** unzip, then **right-click `R_Training_Bot` → Open** the first time to clear
+  Gatekeeper (the build is unsigned/unnotarized).
+
+The browser opens automatically at `http://127.0.0.1:7860`.
+
+> These builds target **personal** laptops. On managed/corporate machines, IT
+> application-allowlisting may block unsigned apps regardless of admin rights.
 
 ---
 

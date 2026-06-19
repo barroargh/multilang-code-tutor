@@ -1,11 +1,13 @@
 """
-Build the R Training Bot as a standalone Windows .exe using PyInstaller.
+Build the R Training Bot as a standalone executable using PyInstaller.
+Runs on the current OS — Windows produces a .exe, macOS a Unix binary.
+(PyInstaller is not a cross-compiler: build each platform on that platform.)
 
 Run:
-    pip install pyinstaller fastapi uvicorn anthropic openai ollama
+    pip install -r requirements.txt
     python build.py
 
-Output: dist/R_Training_Bot.exe
+Output: dist/R_Training_Bot.exe (Windows) or dist/R_Training_Bot (macOS)
 """
 
 import PyInstaller.__main__
