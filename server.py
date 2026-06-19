@@ -16,7 +16,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from lessons import (get_lessons, lesson_titles, language_options, is_ready,
+from lessons import (get_lessons, lesson_titles, language_options, goal_options, is_ready,
                      LANGUAGES, DEFAULT_LANGUAGE)
 from data_manager import (
     load_profile, save_profile,
@@ -156,6 +156,7 @@ def _prog():
     return {
         "language":          lang,
         "languages":         language_options(),
+        "goals":             goal_options(lang),
         "current_lesson":    p.get("current_lesson", 1),
         "completed":         p.get("completed", []),
         "history":           p.get("history", []),
@@ -244,7 +245,7 @@ def post_settings(req: SettingsReq):
     s["model_choice"] = req.model_choice or "auto"
     s["model_name"]   = req.model_name or ""
     s["depth"]             = req.depth if req.depth in ("fast", "standard", "deep") else "standard"
-    if req.goal_lessons      is not None: s["goal_lessons"]      = max(1, min(30, req.goal_lessons))
+    if req.goal_lessons      is not None: s["goal_lessons"]      = max(1, min(len(get_lessons(_lang())) or 30, req.goal_lessons))
     if req.sessions_per_week is not None: s["sessions_per_week"] = max(1, min(7,  req.sessions_per_week))
     if req.remember_key:
         if req.claude_key: s["claude_key"] = req.claude_key

@@ -734,20 +734,7 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
           <div class="settings-card-title">Learning Plan</div>
           <div class="sd-field">
             <div class="sd-lbl">Goal</div>
-            <div class="depth-grid" style="margin-top:4px">
-              <button class="depth-btn goal-btn" data-goal="15">
-                <span class="db-label">Core</span>
-                <span class="db-desc">15 lessons · fundamentals</span>
-              </button>
-              <button class="depth-btn goal-btn" data-goal="22">
-                <span class="db-label">Extended</span>
-                <span class="db-desc">22 · + viz &amp; data access</span>
-              </button>
-              <button class="depth-btn goal-btn active" data-goal="30">
-                <span class="db-label">Full</span>
-                <span class="db-desc">30 · complete track</span>
-              </button>
-            </div>
+            <div class="depth-grid" id="goal-grid" style="margin-top:4px"></div>
           </div>
           <div class="sd-field" style="margin-top:14px">
             <div class="sd-lbl" style="display:flex;justify-content:space-between">
@@ -911,9 +898,7 @@ async function init() {
     document.getElementById('remember-key').checked = true;
   }
   // Restore goal
-  const savedGoal = S.settings.goal_lessons || 30;
-  document.querySelectorAll('.goal-btn').forEach(b =>
-    b.classList.toggle('active', parseInt(b.dataset.goal) === savedGoal));
+  // Goal buttons are rendered from the current curriculum's milestones (renderGoalButtons)
 
   // Restore sessions per week
   const spwRange = document.getElementById('spw-range');
@@ -948,6 +933,7 @@ async function init() {
   buildProfileForm();
   renderLanguagePicker();
   document.getElementById('lang-select').addEventListener('change', e => switchLanguage(e.target.value));
+  renderGoalButtons();
   updateSidebar();   // calls buildLessonPlanList internally
   updatePlanEta();
   renderHistory();
@@ -991,12 +977,30 @@ function renderLanguagePicker() {
   setSubtitle(cur);
 }
 
+// Goal milestones are per-curriculum (Core / Extended / Full sized to each language).
+function renderGoalButtons() {
+  const grid = document.getElementById('goal-grid');
+  if (!grid) return;
+  const total = S.progress.total || 30;
+  const goals = (S.progress.goals && S.progress.goals.length)
+    ? S.progress.goals : [{ label: 'Full', n: total, hint: 'complete track' }];
+  const saved = S.settings.goal_lessons;
+  const ns = goals.map(g => g.n);
+  const active = ns.includes(saved) ? saved : goals[goals.length - 1].n;
+  grid.innerHTML = goals.map(g =>
+    `<button class="depth-btn goal-btn${g.n === active ? ' active' : ''}" data-goal="${g.n}">
+       <span class="db-label">${g.label}</span>
+       <span class="db-desc">${g.n} lessons · ${g.hint}</span>
+     </button>`).join('');
+}
+
 async function switchLanguage(name) {
   if (name === (S.progress.language || 'R')) return;
   try {
     S.progress = await api('/api/language', { language: name });
     S.history  = S.progress.history || [];
     renderLanguagePicker();
+    renderGoalButtons();
     updateSidebar();
     updatePlanEta();
     renderHistory();
@@ -1618,15 +1622,17 @@ document.getElementById('msg-input').addEventListener('keydown', e => {
   if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
 document.getElementById('msg-input').addEventListener('input', e => autoResize(e.target));
-// Goal buttons
-document.querySelectorAll('.goal-btn').forEach(b => b.addEventListener('click', () => {
+// Goal buttons (rendered dynamically from the curriculum — use event delegation)
+document.getElementById('goal-grid').addEventListener('click', e => {
+  const b = e.target.closest('.goal-btn');
+  if (!b) return;
   document.querySelectorAll('.goal-btn').forEach(x => x.classList.remove('active'));
   b.classList.add('active');
   updatePlanEta();
   buildLessonPlanList();
   updateSidebar();
   saveSettings();
-}));
+});
 // Sessions per week
 document.getElementById('spw-range').addEventListener('input', () => {
   updatePlanEta();

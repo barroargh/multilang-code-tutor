@@ -209,25 +209,200 @@ _R = [
     },
 ]
 
-# ── Python — SEED curriculum (to be expanded in Phase 2) ──────────────────────
+# ── Python — for someone who already codes, learning idiomatic Python (30) ────
 _PYTHON = [
+    # ── Tier 1: Pythonic fundamentals ────────────────────────────────────────
     {
         "id": 1,
-        "title": "Core data structures & comprehensions",
-        "description": "list / dict / tuple / set; indexing & slicing; list and dict comprehensions vs loops",
+        "title": "Core data structures",
+        "description": "list / tuple / set / dict — when to use each; mutability; literals; membership with `in`",
         "level": "basic",
     },
     {
         "id": 2,
-        "title": "Functions & idioms",
-        "description": "def, default args and the mutable-default trap, *args/**kwargs, functions as objects",
+        "title": "Indexing & slicing",
+        "description": "Zero-based & negative indices; seq[start:stop:step]; copy vs reference; slice assignment",
         "level": "basic",
     },
     {
         "id": 3,
-        "title": "pandas basics",
-        "description": "DataFrame & Series; selecting and filtering rows/cols; groupby + agg",
+        "title": "Comprehensions",
+        "description": "list / dict / set comprehensions vs loops; filtering with if; when NOT to nest them",
+        "level": "basic",
+    },
+    {
+        "id": 4,
+        "title": "Truthiness, None & equality",
+        "description": "Falsy values; `is` vs `==`; the `x is None` idiom; `or` for defaults; avoid `== None`",
+        "level": "basic",
+    },
+    {
+        "id": 5,
+        "title": "String idioms",
+        "description": "f-strings; split / join / strip / replace; startswith/endswith; str vs bytes",
+        "level": "basic",
+    },
+
+    # ── Tier 2: Functions & iteration ────────────────────────────────────────
+    {
+        "id": 6,
+        "title": "Functions & arguments",
+        "description": "Positional vs keyword; defaults; *args/**kwargs; keyword-only; the mutable-default trap",
+        "level": "basic",
+    },
+    {
+        "id": 7,
+        "title": "Functions as objects",
+        "description": "Passing functions around; lambda; sorted(key=); map/filter vs comprehensions",
         "level": "intermediate",
+    },
+    {
+        "id": 8,
+        "title": "Unpacking & parallel iteration",
+        "description": "Tuple unpacking; *rest; enumerate(); zip() for walking sequences together",
+        "level": "basic",
+    },
+    {
+        "id": 9,
+        "title": "Iterators & generators",
+        "description": "Iterables vs iterators; yield; generator expressions; lazy evaluation for big data",
+        "level": "intermediate",
+    },
+    {
+        "id": 10,
+        "title": "Built-in & itertools toolkit",
+        "description": "any/all/sum/min/max with key; sorted/reversed; itertools chain/groupby/accumulate/islice",
+        "level": "intermediate",
+    },
+
+    # ── Tier 3: Data modelling & robustness ──────────────────────────────────
+    {
+        "id": 11,
+        "title": "Dictionaries in depth",
+        "description": "get / setdefault; dict comprehensions; collections.Counter & defaultdict; merging",
+        "level": "intermediate",
+    },
+    {
+        "id": 12,
+        "title": "Dataclasses & namedtuples",
+        "description": "Modelling records cleanly; @dataclass; frozen; NamedTuple vs dict for a row",
+        "level": "intermediate",
+    },
+    {
+        "id": 13,
+        "title": "Exceptions & error handling",
+        "description": "try/except/else/finally; raising; custom exceptions; EAFP vs LBYL",
+        "level": "intermediate",
+    },
+    {
+        "id": 14,
+        "title": "Regular expressions (re)",
+        "description": "Patterns, groups, findall/search/sub; raw strings; re.compile; named groups",
+        "level": "intermediate",
+    },
+    {
+        "id": 15,
+        "title": "Reading real Python code",
+        "description": "Context managers (with); decorators; dunder methods; comprehension-heavy code",
+        "level": "advanced",
+    },
+
+    # ── Tier 4: pandas — data wrangling ──────────────────────────────────────
+    {
+        "id": 16,
+        "title": "pandas foundations",
+        "description": "Series & DataFrame; dtypes; read_csv / read_excel; head / info / describe",
+        "level": "basic",
+    },
+    {
+        "id": 17,
+        "title": "Selecting & filtering rows",
+        "description": ".loc / .iloc; boolean masks; .isin; .query; the SettingWithCopy pitfall",
+        "level": "intermediate",
+    },
+    {
+        "id": 18,
+        "title": "Creating & transforming columns",
+        "description": ".assign; vectorised ops vs .apply; .map / .replace; np.where for conditionals",
+        "level": "intermediate",
+    },
+    {
+        "id": 19,
+        "title": "groupby & aggregation",
+        "description": "split-apply-combine; .agg with multiple funcs; .transform vs .agg; named aggregation",
+        "level": "intermediate",
+    },
+    {
+        "id": 20,
+        "title": "Joining & combining",
+        "description": "merge (how=, on=, suffixes); concat; validate=; indicator= to diagnose joins",
+        "level": "intermediate",
+    },
+    {
+        "id": 21,
+        "title": "Reshaping",
+        "description": "pivot_table; melt; stack / unstack; wide vs long and why shape matters",
+        "level": "intermediate",
+    },
+    {
+        "id": 22,
+        "title": "Missing data",
+        "description": "NaN vs None; isna / notna; fillna / dropna; ffill; nullable dtypes",
+        "level": "intermediate",
+    },
+
+    # ── Tier 5: Numerics & time ──────────────────────────────────────────────
+    {
+        "id": 23,
+        "title": "NumPy essentials",
+        "description": "ndarray; vectorisation; broadcasting; axis; boolean indexing; why it's fast",
+        "level": "intermediate",
+    },
+    {
+        "id": 24,
+        "title": "Dates & times",
+        "description": "datetime; pd.to_datetime; the .dt accessor; resample; time zones",
+        "level": "intermediate",
+    },
+
+    # ── Tier 6: Visualisation & reporting ────────────────────────────────────
+    {
+        "id": 25,
+        "title": "Visualisation",
+        "description": "matplotlib basics; DataFrame.plot; seaborn for statistical plots; savefig",
+        "level": "basic",
+    },
+    {
+        "id": 26,
+        "title": "Notebooks & reproducible reports",
+        "description": "Jupyter cells & kernels; scripts vs notebooks; nbconvert / papermill; magics",
+        "level": "intermediate",
+    },
+
+    # ── Tier 7: Files, robustness & production ───────────────────────────────
+    {
+        "id": 27,
+        "title": "Files & paths",
+        "description": "pathlib.Path; with open(...); reading / writing JSON & CSV; text encodings",
+        "level": "intermediate",
+    },
+    {
+        "id": 28,
+        "title": "Type hints & defensive code",
+        "description": "Type annotations; assert; input validation; logging over print",
+        "level": "intermediate",
+    },
+    {
+        "id": 29,
+        "title": "Modules, packages & environments",
+        "description": "import system; __init__.py; venv; pip & requirements.txt; project layout",
+        "level": "intermediate",
+    },
+    {
+        "id": 30,
+        "title": "Testing & performance",
+        "description": "pytest basics & fixtures; timeit / cProfile; vectorise over loops; polars / Numba note",
+        "level": "advanced",
     },
 ]
 
@@ -289,7 +464,23 @@ DEFAULT_LANGUAGE = "R"
 
 # Languages whose curriculum is fully authored and selectable by users.
 # Others appear in the picker as "coming soon" until their curriculum is written.
-READY_LANGUAGES = ["R"]
+READY_LANGUAGES = ["R", "Python"]
+
+# Goal milestones per language: (label, lesson count, short hint). The final
+# milestone is the full curriculum. Languages without an entry default to a single
+# "Full" goal computed from their length.
+GOALS = {
+    "R": [
+        ("Core",     15, "fundamentals"),
+        ("Extended", 22, "+ tidy data, viz, I/O"),
+        ("Full",     30, "complete track"),
+    ],
+    "Python": [
+        ("Core",     15, "fundamentals & idioms"),
+        ("Extended", 22, "+ pandas data wrangling"),
+        ("Full",     30, "complete track"),
+    ],
+}
 
 
 def is_ready(language: str) -> bool:
@@ -309,3 +500,12 @@ def get_lessons(language: str) -> list:
 def lesson_titles(language: str) -> dict:
     """{lesson_id: title} for a target language."""
     return {l["id"]: l["title"] for l in get_lessons(language)}
+
+
+def goal_options(language: str) -> list:
+    """[{label, n, hint}] goal milestones for a language, clamped to its length."""
+    n_lessons = len(get_lessons(language))
+    raw = GOALS.get(language)
+    if not raw:
+        return [{"label": "Full", "n": n_lessons, "hint": "complete track"}] if n_lessons else []
+    return [{"label": lbl, "n": min(n, n_lessons), "hint": hint} for (lbl, n, hint) in raw]
