@@ -16,37 +16,22 @@ Features:
 
 ---
 
-## Option A — Standalone app (no Python required)
+## Option A — Build a standalone executable
 
-For sharing with colleagues: they download **one file** and run it — no Python, no `pip`.
-The Python interpreter and all dependencies are bundled inside the build.
+Bundle the app into a single file (the Python interpreter and all dependencies are packed
+inside). You need Python for this build step.
 
-### Step 1 — Get the build
-
-**Download from Releases (recommended).** Grab the latest from the
-[Releases page](https://github.com/barroargh/R_Tutorial_Bot/releases):
-
-- Windows → `R_Training_Bot-Windows.zip`
-- macOS → `R_Training_Bot-macOS.zip`
-
-These are built automatically by GitHub Actions (`.github/workflows/build.yml`). To cut a
-new release, push a version tag — CI builds both platforms and attaches them:
-
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-**Or build it yourself** (one-time, needs Python on *your* machine only):
+### Step 1 — Build it
 
 ```bash
 pip install -r requirements.txt
 python build.py
 ```
 
-→ `dist/R_Training_Bot.exe` (Windows) or `dist/R_Training_Bot` (macOS).
+→ `dist/R_Training_Bot.exe` (Windows) or `dist/R_Training_Bot` (macOS). Build on the OS
+you're targeting — a Windows `.exe` must be built on Windows, a macOS binary on a Mac.
 
-### Step 2 — Set up a model (on each machine)
+### Step 2 — Set up a model
 
 **Ollama (free, no API key)**
 
@@ -64,15 +49,16 @@ Keys are not stored unless you tick "Remember key".
 
 ### Step 3 — Run
 
-- **Windows:** unzip, then double-click `R_Training_Bot.exe`. If SmartScreen warns about
-  an unknown publisher, click **More info → Run anyway** (the build is unsigned).
-- **macOS:** unzip, then **right-click `R_Training_Bot` → Open** the first time to clear
-  Gatekeeper (the build is unsigned/unnotarized).
+- **Windows:** double-click `dist\R_Training_Bot.exe`.
+- **macOS:** it's a Unix binary (not a `.app`) — run it from Terminal: `./dist/R_Training_Bot`.
 
 The browser opens automatically at `http://127.0.0.1:7860`.
 
-> These builds target **personal** laptops. On managed/corporate machines, IT
-> application-allowlisting may block unsigned apps regardless of admin rights.
+> A build you compile yourself runs fine. But the same file **copied or downloaded from
+> another machine** is treated as untrusted — Windows SmartScreen / Smart App Control and
+> macOS Gatekeeper block unsigned apps. So this isn't a clean way to hand the app to people
+> who don't have Python; that needs code signing (or hosting it as a web app). If a
+> colleague already has Python, the simplest path is **Option B** below.
 
 ---
 
