@@ -1,13 +1,19 @@
 """
-Lesson definitions — single source of truth for the curriculum.
+Lesson definitions — single source of truth for every curriculum.
 No imports from other app files.
 
-Each lesson has a `level` ∈ {"basic", "intermediate", "advanced"} describing the
-R proficiency its content corresponds to. curriculum.py uses it to decide, per
-declared R level, whether a lesson is taught in full, fast-tracked, or optional.
+`CURRICULA` maps a target language (what the student is *learning*) to its ordered
+lesson list. Each lesson has a `level` ∈ {"basic", "intermediate", "advanced"}
+describing the proficiency its content corresponds to; curriculum.py uses it to
+decide, per the student's declared level in that language, whether a lesson is
+taught in full, fast-tracked, or made optional.
+
+R is the original, complete 30-lesson curriculum. Python / Stata / VBA currently
+hold short seed curricula (marked below) to be expanded into full curricula.
 """
 
-LESSONS = [
+# ── R — Core fundamentals → production (30 lessons, 7 tiers) ──────────────────
+_R = [
     # ── Tier 1: Core R fundamentals ──────────────────────────────────────────
     {
         "id": 1,
@@ -203,4 +209,90 @@ LESSONS = [
     },
 ]
 
-LESSON_TITLES = {l["id"]: l["title"] for l in LESSONS}
+# ── Python — SEED curriculum (to be expanded in Phase 2) ──────────────────────
+_PYTHON = [
+    {
+        "id": 1,
+        "title": "Core data structures & comprehensions",
+        "description": "list / dict / tuple / set; indexing & slicing; list and dict comprehensions vs loops",
+        "level": "basic",
+    },
+    {
+        "id": 2,
+        "title": "Functions & idioms",
+        "description": "def, default args and the mutable-default trap, *args/**kwargs, functions as objects",
+        "level": "basic",
+    },
+    {
+        "id": 3,
+        "title": "pandas basics",
+        "description": "DataFrame & Series; selecting and filtering rows/cols; groupby + agg",
+        "level": "intermediate",
+    },
+]
+
+# ── Stata — SEED curriculum (to be expanded in Phase 2) ───────────────────────
+_STATA = [
+    {
+        "id": 1,
+        "title": "Data in memory & first commands",
+        "description": "use / import; browse, list, describe, summarize; the single-dataset-in-memory model",
+        "level": "basic",
+    },
+    {
+        "id": 2,
+        "title": "Manipulating variables",
+        "description": "generate / replace; keep / drop; keep if / drop if; sort and by",
+        "level": "basic",
+    },
+    {
+        "id": 3,
+        "title": "By-group processing",
+        "description": "bysort, egen, and collapse for group-level summaries",
+        "level": "intermediate",
+    },
+]
+
+# ── VBA — SEED curriculum (to be expanded in Phase 2) ─────────────────────────
+_VBA = [
+    {
+        "id": 1,
+        "title": "Subs, variables & the object model",
+        "description": "Sub vs Function; Dim and types; Range / Cells; Workbook / Worksheet objects",
+        "level": "basic",
+    },
+    {
+        "id": 2,
+        "title": "Control flow & loops",
+        "description": "If/Then/Else, Select Case, For/Next, For Each, Do While/Until",
+        "level": "basic",
+    },
+    {
+        "id": 3,
+        "title": "Working with ranges efficiently",
+        "description": "Reading a Range into a variant array, .Value, avoiding slow cell-by-cell loops",
+        "level": "intermediate",
+    },
+]
+
+
+CURRICULA = {
+    "R":      _R,
+    "Python": _PYTHON,
+    "Stata":  _STATA,
+    "VBA":    _VBA,
+}
+
+# Target languages offered, in display order. R first (the complete curriculum).
+LANGUAGES = ["R", "Python", "Stata", "VBA"]
+DEFAULT_LANGUAGE = "R"
+
+
+def get_lessons(language: str) -> list:
+    """Ordered lesson list for a target language ([] if unknown)."""
+    return CURRICULA.get(language, [])
+
+
+def lesson_titles(language: str) -> dict:
+    """{lesson_id: title} for a target language."""
+    return {l["id"]: l["title"] for l in get_lessons(language)}

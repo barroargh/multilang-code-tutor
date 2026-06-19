@@ -15,12 +15,12 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from lessons import LESSONS, LESSON_TITLES
+from lessons import get_lessons, lesson_titles, LANGUAGES, DEFAULT_LANGUAGE
 from data_manager import (
     load_profile, save_profile,
     load_progress, save_history, clear_history,
     mark_lesson_complete, set_current_lesson, reset_progress,
-    load_settings, save_settings,
+    load_settings, save_settings, set_target_language,
 )
 from prompt_builder import build_system_prompt
 from curriculum import plan_for, recommended_start
@@ -30,6 +30,12 @@ from llm_router import chat as llm_chat
 def _static(name: str) -> Path:
     base = Path(sys._MEIPASS) if hasattr(sys, "_MEIPASS") else Path(__file__).parent
     return base / "static" / name
+
+
+def _lang() -> str:
+    """Currently selected target language (validated, defaults to R)."""
+    lang = load_settings().get("target_language", DEFAULT_LANGUAGE)
+    return lang if lang in LANGUAGES else DEFAULT_LANGUAGE
 
 
 def _extract(content) -> str:
@@ -62,8 +68,9 @@ class ChatReq(BaseModel):
 
 @app.post("/api/chat")
 def chat(req: ChatReq):
-    cur = load_progress().get("current_lesson", 1)
-    sp = build_system_prompt(load_profile(), depth=load_settings().get("depth", "standard"),
+    lang = _lang()
+    cur = load_progress(lang).get("current_lesson", 1)
+    sp = build_system_prompt(load_profile(), lang, depth=load_settings().get("depth", "standard"),
                              current_lesson=cur)
     msgs = [{"role": m["role"], "content": _extract(m["content"])} for m in req.history]
     msgs.append({"role": "user", "content": req.message})
@@ -76,14 +83,14 @@ def chat(req: ChatReq):
     m = re.search(r"✅\s*[Ll]esson\s+(\d+)\s+complete", reply)
     if m:
         completed_id = int(m.group(1))
-        mark_lesson_complete(completed_id)
+        mark_lesson_complete(lang, completed_id)
 
     history = req.history + [
         {"role": "user",      "content": req.message},
         {"role": "assistant", "content": reply},
     ]
-    save_history(history)
-    p = load_progress()
+    save_history(lang, history)
+    p = load_progress(lang)
     return {
         "reply": reply,
         "lesson_completed": completed_id,
@@ -102,12 +109,13 @@ class JumpReq(BaseModel):
 
 @app.post("/api/jump")
 def jump(req: JumpReq):
-    set_current_lesson(req.lesson_id)
+    lang = _lang()
+    set_current_lesson(lang, req.lesson_id)
     profile = load_profile()
-    sp    = build_system_prompt(profile, depth=load_settings().get("depth", "standard"),
+    sp    = build_system_prompt(profile, lang, depth=load_settings().get("depth", "standard"),
                                 current_lesson=req.lesson_id)
-    title = LESSON_TITLES.get(req.lesson_id, "")
-    treatment = plan_for(profile).get(req.lesson_id, "full")
+    title = lesson_titles(lang).get(req.lesson_id, "")
+    treatment = plan_for(profile, lang).get(req.lesson_id, "full")
     if treatment == "optional":
         instr = (f"Please start Lesson {req.lesson_id}: {title}. "
                  "It is OPTIONAL for this student's level — follow the optional treatment: "
@@ -130,24 +138,28 @@ def jump(req: JumpReq):
         {"role": "user",      "content": f"→ Lesson {req.lesson_id}: {title}"},
         {"role": "assistant", "content": reply},
     ]
-    save_history(history)
+    save_history(lang, history)
     return {"reply": reply, "title": title}
 
 
 # ── Progress ──────────────────────────────────────────────────────────────────
 
 def _prog():
-    p = load_progress()
+    lang = _lang()
+    p = load_progress(lang)
     profile = load_profile()
-    plan = plan_for(profile)
-    lessons = [{**l, "treatment": plan.get(l["id"], "full")} for l in LESSONS]
+    plan = plan_for(profile, lang)
+    base = get_lessons(lang)
+    lessons = [{**l, "treatment": plan.get(l["id"], "full")} for l in base]
     return {
+        "language":          lang,
+        "available":         LANGUAGES,
         "current_lesson":    p.get("current_lesson", 1),
         "completed":         p.get("completed", []),
         "history":           p.get("history", []),
-        "total":             len(LESSONS),
+        "total":             len(base),
         "lessons":           lessons,
-        "recommended_start": recommended_start(profile, p.get("completed", [])),
+        "recommended_start": recommended_start(profile, lang, p.get("completed", [])),
     }
 
 
@@ -158,13 +170,32 @@ def get_progress():
 
 @app.post("/api/progress/complete")
 def complete_lesson():
-    mark_lesson_complete(load_progress().get("current_lesson", 1))
+    lang = _lang()
+    mark_lesson_complete(lang, load_progress(lang).get("current_lesson", 1))
     return _prog()
 
 
 @app.post("/api/progress/reset")
 def reset():
-    reset_progress()
+    reset_progress(_lang())
+    return _prog()
+
+
+# ── Target language ────────────────────────────────────────────────────────────
+
+class LanguageReq(BaseModel):
+    language: str
+
+
+@app.get("/api/language")
+def get_language():
+    return {"language": _lang(), "available": LANGUAGES}
+
+
+@app.post("/api/language")
+def set_language(req: LanguageReq):
+    lang = req.language if req.language in LANGUAGES else DEFAULT_LANGUAGE
+    set_target_language(lang)
     return _prog()
 
 
@@ -265,20 +296,20 @@ class SaveHistoryReq(BaseModel):
 
 @app.post("/api/history/save")
 def save_history_endpoint(req: SaveHistoryReq):
-    save_history(req.history)
+    save_history(_lang(), req.history)
     return {"ok": True}
 
 
 @app.post("/api/history/clear")
 def clear_history_endpoint():
-    clear_history()
+    clear_history(_lang())
     return {"ok": True}
 
 
 # ── Compact ───────────────────────────────────────────────────────────────────
 
 _COMPACT_PROMPT = (
-    "You are writing a brief session handover note for an R programming tutor bot. "
+    "You are writing a brief session handover note for a programming tutor bot. "
     "Summarise the conversation in under 200 words covering: "
     "(1) which lessons were completed (number + title), "
     "(2) concepts the student demonstrated understanding of, "
