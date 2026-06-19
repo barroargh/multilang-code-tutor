@@ -2,6 +2,7 @@
 R Training Bot — FastAPI backend.
 Run: python server.py
 """
+import os
 import re
 import sys
 import tempfile
@@ -15,7 +16,8 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from lessons import get_lessons, lesson_titles, LANGUAGES, DEFAULT_LANGUAGE
+from lessons import (get_lessons, lesson_titles, language_options, is_ready,
+                     LANGUAGES, DEFAULT_LANGUAGE)
 from data_manager import (
     load_profile, save_profile,
     load_progress, save_history, clear_history,
@@ -153,7 +155,7 @@ def _prog():
     lessons = [{**l, "treatment": plan.get(l["id"], "full")} for l in base]
     return {
         "language":          lang,
-        "available":         LANGUAGES,
+        "languages":         language_options(),
         "current_lesson":    p.get("current_lesson", 1),
         "completed":         p.get("completed", []),
         "history":           p.get("history", []),
@@ -189,13 +191,14 @@ class LanguageReq(BaseModel):
 
 @app.get("/api/language")
 def get_language():
-    return {"language": _lang(), "available": LANGUAGES}
+    return {"language": _lang(), "languages": language_options()}
 
 
 @app.post("/api/language")
 def set_language(req: LanguageReq):
-    lang = req.language if req.language in LANGUAGES else DEFAULT_LANGUAGE
-    set_target_language(lang)
+    # Only fully-authored ("ready") languages can be selected; otherwise keep current.
+    if req.language in LANGUAGES and is_ready(req.language):
+        set_target_language(req.language)
     return _prog()
 
 
@@ -342,7 +345,7 @@ def compact_chat(req: CompactReq):
 # ── Launch ────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    PORT = 7860
+    PORT = int(os.environ.get("PORT", "7860"))
 
     def _open():
         import time; time.sleep(1.0)

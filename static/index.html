@@ -422,6 +422,11 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
   outline:none}
 #model-select:focus{border-color:var(--blue)}
 #model-custom{margin-top:6px;display:none}
+/* ── Language picker ── */
+#lang-select{width:100%;padding:7px 9px;border:1px solid var(--bd);border-radius:var(--r);
+  font-size:13px;font-weight:600;background:var(--bg);color:var(--tx);cursor:pointer;
+  font-family:inherit;outline:none}
+#lang-select:focus{border-color:var(--blue)}
 /* ── Message limit pill ── */
 .msg-pill{font-size:10px;padding:1px 8px;border-radius:99px;white-space:nowrap;
   border:1px solid var(--bd);color:var(--tx3);background:transparent;transition:all .2s}
@@ -436,7 +441,12 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
   <aside class="sidebar">
     <div class="sb-logo">
       <h1>R Training Bot</h1>
-      <p>Idiomatic R, one concept at a time</p>
+      <p id="sb-subtitle">Idiomatic R, one concept at a time</p>
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-lbl">Learning</div>
+      <select id="lang-select"></select>
     </div>
 
     <div class="sb-sec">
@@ -936,6 +946,8 @@ async function init() {
 
   S.history = S.progress.history || [];
   buildProfileForm();
+  renderLanguagePicker();
+  document.getElementById('lang-select').addEventListener('change', e => switchLanguage(e.target.value));
   updateSidebar();   // calls buildLessonPlanList internally
   updatePlanEta();
   renderHistory();
@@ -954,6 +966,47 @@ function updateSidebar() {
   document.getElementById('sb-fill').style.width     = pct + '%';
   document.getElementById('sb-prog-lbl').textContent = `${doneInGoal} / ${goal} complete`;
   buildLessonPlanList();
+}
+
+// ── Target language picker ─────────────────────────────────────────────────────
+function setSubtitle(lang) {
+  const p = document.getElementById('sb-subtitle');
+  if (p) p.textContent = `Idiomatic ${lang}, one concept at a time`;
+}
+
+function renderLanguagePicker() {
+  const sel = document.getElementById('lang-select');
+  if (!sel) return;
+  const opts = S.progress.languages || [{ name: 'R', ready: true }];
+  const cur  = S.progress.language || 'R';
+  sel.innerHTML = '';
+  opts.forEach(o => {
+    const el = document.createElement('option');
+    el.value = o.name;
+    el.textContent = o.ready ? o.name : `${o.name} (soon)`;
+    el.disabled = !o.ready;
+    if (o.name === cur) el.selected = true;
+    sel.appendChild(el);
+  });
+  setSubtitle(cur);
+}
+
+async function switchLanguage(name) {
+  if (name === (S.progress.language || 'R')) return;
+  try {
+    S.progress = await api('/api/language', { language: name });
+    S.history  = S.progress.history || [];
+    renderLanguagePicker();
+    updateSidebar();
+    updatePlanEta();
+    renderHistory();
+    renderProgress();
+    updateCtxMeter();
+    toast(`Now learning ${S.progress.language}`, 'success');
+  } catch (e) {
+    toast('Could not switch language: ' + e.message, 'error');
+    renderLanguagePicker();   // revert the <select> to the real current language
+  }
 }
 
 // ── Model helpers ────────────────────────────────────────────────────────────
@@ -1027,11 +1080,11 @@ function renderHistory() {
 }
 
 function appendWelcome() {
-  const { current_lesson, completed, lessons } = S.progress;
+  const { current_lesson, completed, lessons, language = 'R' } = S.progress;
   const cur = (lessons||[]).find(l => l.id === current_lesson);
   const txt = completed.length === 0
-    ? `**Welcome to the R Training Bot.**\n\nFill in your **Profile** tab so I can adapt my teaching style, then type **start** to begin.`
-    : `**Welcome back!** You left off at Lesson ${current_lesson}: *${cur?.title||''}*. You've completed **${completed.length} of ${(lessons||[]).length}** lessons.\n\nType **continue** to pick up where you left off, or jump to a lesson from the sidebar.`;
+    ? `**Welcome — you're learning ${language}.**\n\nFill in your **Profile** tab so I can adapt my teaching style, then type **start** to begin.`
+    : `**Welcome back!** You left off at Lesson ${current_lesson}: *${cur?.title||''}*. You've completed **${completed.length} of ${(lessons||[]).length}** ${language} lessons.\n\nType **continue** to pick up where you left off, or jump to a lesson from the sidebar.`;
   const el = makeMsg('assistant', txt);
   el.style.animation = 'none';
   document.getElementById('messages').appendChild(el);

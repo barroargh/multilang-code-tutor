@@ -287,6 +287,19 @@ CURRICULA = {
 LANGUAGES = ["R", "Python", "Stata", "VBA"]
 DEFAULT_LANGUAGE = "R"
 
+# Languages whose curriculum is fully authored and selectable by users.
+# Others appear in the picker as "coming soon" until their curriculum is written.
+READY_LANGUAGES = ["R"]
+
+
+def is_ready(language: str) -> bool:
+    return language in READY_LANGUAGES
+
+
+def language_options() -> list:
+    """[{name, ready}] in display order — drives the frontend language picker."""
+    return [{"name": l, "ready": l in READY_LANGUAGES} for l in LANGUAGES]
+
 
 def get_lessons(language: str) -> list:
     """Ordered lesson list for a target language ([] if unknown)."""
