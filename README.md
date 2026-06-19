@@ -26,7 +26,7 @@ The Python interpreter and all dependencies are bundled inside the build.
 **Download from Releases (recommended).** Grab the latest from the
 [Releases page](https://github.com/barroargh/R_Tutorial_Bot/releases):
 
-- Windows → `R_Training_Bot-Windows.exe`
+- Windows → `R_Training_Bot-Windows.zip`
 - macOS → `R_Training_Bot-macOS.zip`
 
 These are built automatically by GitHub Actions (`.github/workflows/build.yml`). To cut a
@@ -64,8 +64,8 @@ Keys are not stored unless you tick "Remember key".
 
 ### Step 3 — Run
 
-- **Windows:** double-click `R_Training_Bot.exe`. If SmartScreen warns about an unknown
-  publisher, click **More info → Run anyway** (the build is unsigned).
+- **Windows:** unzip, then double-click `R_Training_Bot.exe`. If SmartScreen warns about
+  an unknown publisher, click **More info → Run anyway** (the build is unsigned).
 - **macOS:** unzip, then **right-click `R_Training_Bot` → Open** the first time to clear
   Gatekeeper (the build is unsigned/unnotarized).
 
