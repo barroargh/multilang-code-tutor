@@ -406,24 +406,159 @@ _PYTHON = [
     },
 ]
 
-# ── Stata — SEED curriculum (to be expanded in Phase 2) ───────────────────────
+# ── Stata — for someone who already codes / does data work (24 lessons) ───────
 _STATA = [
+    # ── Tier 1: The Stata model & looking at data ────────────────────────────
     {
         "id": 1,
-        "title": "Data in memory & first commands",
-        "description": "use / import; browse, list, describe, summarize; the single-dataset-in-memory model",
+        "title": "The one-dataset-in-memory model",
+        "description": "use / import delimited / import excel; save; the single active dataset; clear",
         "level": "basic",
     },
     {
         "id": 2,
-        "title": "Manipulating variables",
-        "description": "generate / replace; keep / drop; keep if / drop if; sort and by",
+        "title": "Looking at data",
+        "description": "describe, browse, list, count, codebook, inspect; the Variables & Properties panes",
         "level": "basic",
     },
     {
         "id": 3,
-        "title": "By-group processing",
-        "description": "bysort, egen, and collapse for group-level summaries",
+        "title": "Summarizing",
+        "description": "summarize (+ detail); tabulate one/two-way; tab1; table; misc summary idioms",
+        "level": "basic",
+    },
+
+    # ── Tier 2: Data manipulation core ───────────────────────────────────────
+    {
+        "id": 4,
+        "title": "generate & replace",
+        "description": "gen / replace; numeric vs string; expressions & functions; egen vs gen distinction",
+        "level": "basic",
+    },
+    {
+        "id": 5,
+        "title": "Subsetting with if & in",
+        "description": "keep / drop (variables); keep if / drop if; in ranges; the if-qualifier on any command",
+        "level": "basic",
+    },
+    {
+        "id": 6,
+        "title": "Sorting & ordering",
+        "description": "sort, gsort (descending), order, move; why sort order matters for by-processing",
+        "level": "basic",
+    },
+    {
+        "id": 7,
+        "title": "Recoding & conditionals",
+        "description": "recode; cond(); inlist(); inrange(); building grouped/binned variables",
+        "level": "intermediate",
+    },
+    {
+        "id": 8,
+        "title": "Labels",
+        "description": "variable labels; label define / label values; numeric-with-labels idiom; notes",
+        "level": "intermediate",
+    },
+    {
+        "id": 9,
+        "title": "Missing values",
+        "description": ". vs extended .a–.z; missing() & !missing(); how missings sort & compare; mvdecode/mvencode",
+        "level": "intermediate",
+    },
+    {
+        "id": 10,
+        "title": "String functions",
+        "description": "substr, strpos, strlen, subinstr, trim; regexm / regexs; destring / tostring",
+        "level": "intermediate",
+    },
+    {
+        "id": 11,
+        "title": "Dates & times",
+        "description": "date() / clock(); %td and %tc display formats; date arithmetic; extracting parts",
+        "level": "intermediate",
+    },
+
+    # ── Tier 3: By-group processing, reshaping & combining ───────────────────
+    {
+        "id": 12,
+        "title": "by & bysort",
+        "description": "the by: prefix; bysort; _n and _N; first/last within group; running calculations",
+        "level": "intermediate",
+    },
+    {
+        "id": 13,
+        "title": "egen",
+        "description": "rowtotal/rowmean; mean/total by group; group(), tag(), cut(); when egen beats a loop",
+        "level": "intermediate",
+    },
+    {
+        "id": 14,
+        "title": "collapse",
+        "description": "group-level aggregation; collapse (mean) (sum) ..., by(); contract for frequencies",
+        "level": "intermediate",
+    },
+    {
+        "id": 15,
+        "title": "reshape",
+        "description": "long vs wide; reshape long / wide; i() and j(); why tidy/long shape matters",
+        "level": "intermediate",
+    },
+    {
+        "id": 16,
+        "title": "Combining datasets",
+        "description": "merge 1:1 / m:1 / 1:m and _merge; append; the joinby/cross idioms; checking matches",
+        "level": "intermediate",
+    },
+
+    # ── Tier 4: Programming idioms ───────────────────────────────────────────
+    {
+        "id": 17,
+        "title": "Macros",
+        "description": "local vs global; macro expansion `x'; `=exp'; building varlists; quoting pitfalls",
+        "level": "intermediate",
+    },
+    {
+        "id": 18,
+        "title": "Loops",
+        "description": "foreach (in / of varlist / of numlist); forvalues; looping to automate repetitive edits",
+        "level": "intermediate",
+    },
+    {
+        "id": 19,
+        "title": "Stored results",
+        "description": "return list & r(); ereturn list & e(); reusing results in later commands",
+        "level": "advanced",
+    },
+    {
+        "id": 20,
+        "title": "do-files & programs",
+        "description": "do-files for reproducibility; program define; args; capture; a clean script structure",
+        "level": "advanced",
+    },
+
+    # ── Tier 5: Analysis & reporting ─────────────────────────────────────────
+    {
+        "id": 21,
+        "title": "Regression basics",
+        "description": "regress; factor-variable notation i. / c. / ##; reading the output table",
+        "level": "intermediate",
+    },
+    {
+        "id": 22,
+        "title": "Postestimation & margins",
+        "description": "predict; test / lincom; margins and marginsplot; interpreting adjusted predictions",
+        "level": "advanced",
+    },
+    {
+        "id": 23,
+        "title": "Tables & exporting results",
+        "description": "putexcel; estimates store + esttab/estout; the collect/table suite; export to Excel",
+        "level": "intermediate",
+    },
+    {
+        "id": 24,
+        "title": "Graphs",
+        "description": "twoway (scatter/line/connected); bar & box; by() and over(); graph export",
         "level": "intermediate",
     },
 ]
@@ -464,7 +599,7 @@ DEFAULT_LANGUAGE = "R"
 
 # Languages whose curriculum is fully authored and selectable by users.
 # Others appear in the picker as "coming soon" until their curriculum is written.
-READY_LANGUAGES = ["R", "Python"]
+READY_LANGUAGES = ["R", "Python", "Stata"]
 
 # Goal milestones per language: (label, lesson count, short hint). The final
 # milestone is the full curriculum. Languages without an entry default to a single
@@ -479,6 +614,11 @@ GOALS = {
         ("Core",     15, "fundamentals & idioms"),
         ("Extended", 22, "+ pandas data wrangling"),
         ("Full",     30, "complete track"),
+    ],
+    "Stata": [
+        ("Core",     11, "data basics & manipulation"),
+        ("Extended", 16, "+ by-group, reshape, merge"),
+        ("Full",     24, "complete track"),
     ],
 }
 
