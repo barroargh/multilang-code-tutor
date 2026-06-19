@@ -1,16 +1,20 @@
 # R Training Bot
 
-A conversational R tutor that teaches idiomatic R — functional programming, dplyr,
-joins, stringr, regex and more — one concept at a time, with real data examples and a
-30-lesson curriculum across 7 tiers.
+A conversational coding tutor that teaches **idiomatic R, Python, Stata, and VBA** — one
+concept at a time, with real data examples and a curriculum tailored to each language. Pick
+the language you want to learn; the bot adapts the lesson plan and its explanations to the
+languages you already know.
+
+> It began as an R-only tutor (hence the name) and now teaches four languages.
 
 Features:
-- Adapts teaching style to your background (Python, VBA, R, Excel, Stata)
-- Adapts the lesson plan to your declared **R** level — fast-tracks or marks optional the lessons you likely already know
-- Tracks progress across sessions — resumes where you left off
+- **Four languages to learn:** R (30 lessons), Python (30), Stata (24), VBA (20) — switch any time from the sidebar
+- Adapts teaching style to your background — draws analogies from the languages you already know (R / Python / Stata / VBA / Excel)
+- Adapts the lesson plan to your declared level in the language you're learning — fast-tracks or marks optional the lessons you likely already know
+- Per-language progress & chat history — switching languages never loses your place
 - Inline lesson plan in the sidebar — click any lesson to jump there
 - Learning pace picker: Fast / Standard / Deep
-- Learning plan: set your goal (Core 15 / Extended 22 / Full 30), sessions per week, get an ETA
+- Learning plan: goal milestones sized to each curriculum (Core / Extended / Full), sessions per week, ETA
 - Theme picker: Default / Dark / Teal / Violet
 - Works with Ollama (free, local), Claude API, or OpenAI API
 
@@ -81,39 +85,38 @@ python server.py
 Or double-click `launch.bat`.
 
 The browser opens automatically at [http://127.0.0.1:7860](http://127.0.0.1:7860).
+(Set the `PORT` env var to use a different port.)
 
 ---
 
 ## Using the app
 
-**First run:** open the **Profile** tab, tick the languages you know — Python, VBA, R,
-Excel, Stata — set a level for each, and describe what you use R for. Your **R** level
-reshapes the lesson plan; the others tune the analogies and examples. Then switch to the
-**Chat** tab and type `start`.
+**First run:** in the sidebar, pick the **language you want to learn** (R / Python / Stata /
+VBA). Then open the **Profile** tab, tick the languages you already know — R, Python, Stata,
+VBA, Excel — set a level for each, and describe what you use the language for. Your declared
+level in the *target* language reshapes the lesson plan; the others tune the analogies and
+examples. Switch to the **Chat** tab and type `start`.
 
 ### Sidebar (always visible)
 
-Shows the current lesson and progress bar, the full **lesson plan** (✓ done · ▶ current ·
-○ upcoming, with `fast-track` / `optional` badges and a "Suggested start" hint based on
-your R level — click any row to jump), the **model** picker, and **Mark lesson complete**
-/ **Export chat** buttons.
+- **Language picker** — choose what to learn; switching loads that language's plan, progress, and chat.
+- Current lesson and progress bar.
+- The full **lesson plan** (✓ done · ▶ current · ○ upcoming), with `fast-track` / `optional` badges and a "Suggested start" hint based on your declared level — click any row to jump.
+- The **model** picker, and **Mark lesson complete** / **Export chat** buttons.
 
 ### Tabs
 
-- **Chat** — talk to the tutor. Type `start`, `next` / `continue` to advance, `skip` to
-  move on, or `lesson 12` / a lesson name to jump. The strip below shows token usage, the
-  active model, **Compact**, and **Clear**.
-- **Progress** — completion stats and charts; **Reset all progress** lives here.
-- **Profile** — your languages, R level, and use-case. Editable any time — saving
-  refreshes the plan live.
-- **Settings** — model + API key ("Remember key" to persist), **Learning Plan** (goal
-  Core 15 / Extended 22 / Full 30 · sessions per week · ETA), **Learning Pace** (Fast /
-  Standard / Deep), and **Appearance** themes.
+- **Chat** — talk to the tutor. Type `start`, `next` / `continue` to advance, `skip` to move on, or `lesson 12` / a lesson name to jump. The strip below shows token usage, the active model, **Compact**, and **Clear**.
+- **Progress** — completion stats and charts; **Reset all progress** (resets only the current language) lives here.
+- **Profile** — the languages you know and your use-case. Editable any time — saving refreshes the plan live.
+- **Settings** — model + API key ("Remember key" to persist), **Learning Plan** (goal milestones for the current language · sessions per week · ETA), **Learning Pace** (Fast / Standard / Deep), and **Appearance** themes.
 - **Help** — full command reference.
 
-Progress saves automatically when the tutor emits `✅ Lesson N complete`. **Export**
-downloads the chat as Markdown; **Compact** swaps the history for a short handover note,
-keeping the context window small without losing continuity.
+Progress saves automatically when the tutor emits `✅ Lesson N complete`. **Export** downloads the chat as Markdown; **Compact** swaps the history for a short handover note, keeping the context window small without losing continuity.
+
+### Adding or editing a curriculum
+
+Each language's lessons live in `lessons.py` under `CURRICULA[<language>]`. To add a language: add its lesson list and a `GOALS` entry, then include it in `READY_LANGUAGES`. Languages not in `READY_LANGUAGES` appear in the picker as "(soon)" and can't be selected. No engine/frontend changes are needed — everything is language-agnostic.
 
 ---
 
@@ -121,34 +124,35 @@ keeping the context window small without losing continuity.
 
 | File | Purpose |
 |------|---------|
-| `server.py` | FastAPI backend — chat, progress, profile, settings endpoints |
-| `static/index.html` | Single-page HTML/CSS/JS frontend |
+| `server.py` | FastAPI backend — chat, progress, profile, settings, language endpoints; threads the target language through everything |
+| `static/index.html` | Single-page HTML/CSS/JS frontend (includes the sidebar language picker) |
 | `llm_router.py` | Routes messages to Claude / OpenAI / Ollama |
-| `prompt_builder.py` | Builds system prompt from base + profile + depth + per-lesson treatment |
-| `curriculum.py` | Maps your R level to a per-lesson plan (full / fast-track / optional) |
-| `data_manager.py` | Reads/writes profile, progress, history, settings to disk |
-| `lessons.py` | 30-lesson curriculum (titles, descriptions, difficulty level) — edit to change content |
-| `system_prompt.md` | Base teaching instructions for the tutor |
+| `lessons.py` | All curricula (`CURRICULA[language]`), `GOALS` milestones, `READY_LANGUAGES` — the content source of truth |
+| `curriculum.py` | Maps your declared level in the target language to a per-lesson plan (full / fast-track / optional) |
+| `prompt_builder.py` | Builds the system prompt: depth + treatment + background, injecting the language and its lesson sequence into the base template |
+| `data_manager.py` | Reads/writes profile & settings, and **per-language** progress/history, to disk |
+| `system_prompt.md` | Language-agnostic teaching template (`{{LANGUAGE}}` + `{{LESSON_SEQUENCE}}` placeholders) |
 | `build.py` | PyInstaller build script |
 | `launch.bat` | Windows double-click launcher (source mode) |
 | `requirements.txt` | Python dependencies |
 
-User data (profile, progress, chat history, settings) is stored in `user_data/` next
-to the exe or script. Delete this folder to reset everything.
+User data (profile, settings, and per-language progress/history) is stored in `user_data/`
+next to the exe or script. Delete this folder to reset everything.
 
 ---
 
-## Curriculum overview
+## Curricula
 
-| Tier | Lessons | Topics |
-|------|---------|--------|
-| T1 — Core fundamentals | 1–15 | Vectors, lapply, purrr, dplyr, joins, stringr, regex, functions |
-| T2 — Tidy data | 16–18 | tidyr, lubridate, forcats |
-| T3 — Visualisation | 19–20 | ggplot2 foundations, facets & scales |
-| T4 — Data access & quality | 21–23 | File I/O, labelled survey data, missing data |
-| T5 — Defensive programming | 24–25 | tryCatch, project structure & renv |
-| T6 — Reporting & modelling | 26–27 | Quarto / R Markdown, lm / glm / broom |
-| T7 — Production R | 28–30 | Validation, writing packages, performance & data.table |
+Each language is sized to its own idiomatic surface area (quality over a fixed count):
+
+| Language | Lessons | Shape |
+|----------|---------|-------|
+| **R** | 30 | Core fundamentals → tidyverse (dplyr / purrr / tidyr / stringr) → ggplot2 → I/O & labelled data → defensive programming → reporting & modelling → production |
+| **Python** | 30 | Pythonic fundamentals → functions & iteration → data modelling & errors → pandas → NumPy & dates → viz & notebooks → files, packaging & testing |
+| **Stata** | 24 | One-dataset model → data manipulation → by-group / reshape / merge → programming (macros, loops, do-files) → analysis & reporting |
+| **VBA** | 20 | Editor & object model → worksheet work → idioms & robustness (arrays, performance, errors) → automating (workbooks, events, files) |
+
+Goal milestones (Core / Extended / Full) are defined per language in `lessons.py`.
 
 ---
 
