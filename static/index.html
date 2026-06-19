@@ -598,6 +598,30 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
     <div class="tab" id="tab-help">
       <div class="help-content">
 
+        <!-- How it works -->
+        <div class="help-sec">
+          <h3>How it works</h3>
+          <p style="font-size:13px;line-height:1.6;color:var(--tx2);margin:0 0 12px">
+            A hands-on coding tutor for <strong>R, Python, Stata, and VBA</strong>. You learn one
+            concept at a time: each lesson is a few <em>beats</em> (a short explanation + an exercise
+            you attempt) ending in an integration exercise. The tutor adapts to you — pick what to
+            learn, tell it the languages you already know, and it tailors the analogies, examples, and pace.
+          </p>
+          <div class="help-kv">
+            <span class="k">1 · Pick a language</span>
+            <span class="v">Use the <em>Learning</em> dropdown in the sidebar to choose R / Python / Stata / VBA. Each has its own curriculum and its own saved progress.</span>
+            <span class="k">2 · Set your Profile</span>
+            <span class="v">In the <em>Profile</em> tab, tick the languages you already know (with a level) and say what you use the language for. Your level in the language you're <em>learning</em> fast-tracks or makes optional the lessons you'd already know; the others shape the analogies.</span>
+            <span class="k">3 · Learn in Chat</span>
+            <span class="v">Type <span class="cmd-pill">start</span> and answer the exercises. Get one wrong and you simply stay on the lesson — nothing is marked done until you pass the final exercise (or click <em>Mark complete</em>).</span>
+            <span class="k">4 · Steer freely</span>
+            <span class="v">Say <em>next</em> / <em>skip</em> to move on (a skipped lesson is <strong>not</strong> marked complete), jump to any lesson from the sidebar, or ask any off-topic question — the tutor answers, then returns to your lesson.</span>
+            <span class="k">5 · Track progress</span>
+            <span class="v">The <em>Progress</em> tab shows your % complete and a per-lesson bar: <span style="color:#16a34a;font-weight:600">green</span> = completed, <span style="color:#185FA5;font-weight:600">blue</span> = in progress, grey = not started.</span>
+          </div>
+          <div class="help-note">First time? Set your model below — paste a Claude or OpenAI key in the <em>Settings</em> tab, or run a local model with Ollama (no key needed).</div>
+        </div>
+
         <!-- Chat commands -->
         <div class="help-sec">
           <h3>Chat commands</h3>
@@ -619,7 +643,7 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
               <td class="cmd-desc">Ask anything off-topic — your own data, a specific function, a workflow question. The bot answers fully, then returns with <em>Back to Lesson N —</em> to pick up where you left off.</td>
             </tr>
           </table>
-          <div class="help-note">The course tracks 15 lessons in order, but you can jump freely. Off-topic questions are always welcome — they won't break the lesson flow.</div>
+          <div class="help-note">Each language has its own ordered curriculum (R 30 · Python 30 · Stata 24 · VBA 20), but you can jump freely. Off-topic questions are always welcome — they won't break the lesson flow.</div>
         </div>
 
         <!-- Lesson navigation -->
@@ -627,8 +651,8 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
           <h3>Lesson navigation</h3>
           <table class="cmd-table">
             <tr>
-              <td><span class="cmd-pill">Sidebar dropdown</span></td>
-              <td class="cmd-desc">Select any lesson from the <em>Jump to lesson</em> dropdown and click <em>Go to lesson</em>. Same result as typing "lesson N" in chat.</td>
+              <td><span class="cmd-pill">Sidebar plan</span></td>
+              <td class="cmd-desc">Click any lesson in the sidebar <em>Lesson plan</em> to jump straight to it. Same result as typing "lesson N" in chat.</td>
             </tr>
             <tr>
               <td><span class="cmd-pill">✓ Mark lesson complete</span></td>
@@ -636,7 +660,7 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
             </tr>
             <tr>
               <td><span class="cmd-pill">Progress tab</span></td>
-              <td class="cmd-desc">Visual overview of all 15 lessons — doughnut chart (% done), bar chart (per-lesson status: green = done, blue = current, grey = pending), and a full lesson list with descriptions.</td>
+              <td class="cmd-desc">Visual overview of every lesson — a doughnut (% complete), a per-lesson progress bar (green = completed, blue = in progress, grey = not started), and the full lesson list with descriptions.</td>
             </tr>
           </table>
         </div>
@@ -659,7 +683,7 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
             </tr>
             <tr>
               <td><span class="cmd-pill">Remember key</span></td>
-              <td class="cmd-desc">Saves the API key to <em>user_data/settings.json</em> on this machine. Unchecking removes it. Model choice and model name always save regardless.</td>
+              <td class="cmd-desc">Saves the API key to <em>user_data/keys.json</em> (kept separate from your preferences) on this machine. Unchecking removes it. Model choice and model name always save regardless.</td>
             </tr>
           </table>
           <div class="help-note"><strong>Default models:</strong> Claude → claude-sonnet-4-6 &nbsp;·&nbsp; OpenAI → gpt-4o-mini &nbsp;·&nbsp; Ollama → llama3.2</div>
@@ -698,7 +722,7 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
             <span class="k">Model &amp; provider</span>
             <span class="v">Provider choice and model name always save. API key only saves if <em>Remember key</em> is checked.</span>
           </div>
-          <div class="help-note">All data lives in <strong>user_data/</strong> next to the app. Delete that folder to start completely fresh.</div>
+          <div class="help-note">All data lives in <strong>user_data/</strong> next to the app — preferences in <em>settings.json</em>, API keys in <em>keys.json</em>, and per-language <em>progress/</em> and <em>history/</em> folders. Delete the folder to start completely fresh.</div>
         </div>
 
         <!-- Keyboard -->

@@ -19,14 +19,18 @@ from pydantic import BaseModel
 from lessons import (get_lessons, lesson_titles, language_options, goal_options, is_ready,
                      LANGUAGES, DEFAULT_LANGUAGE)
 from data_manager import (
+    migrate,
     load_profile, save_profile,
     load_progress, save_history, clear_history,
     mark_lesson_complete, set_current_lesson, reset_progress,
     load_settings, save_settings, set_target_language,
+    load_keys, save_keys, clear_keys,
 )
 from prompt_builder import build_system_prompt
 from curriculum import plan_for, recommended_start
 from llm_router import chat as llm_chat
+
+migrate()  # upgrade any legacy user_data/ layout on startup (idempotent)
 
 
 def _static(name: str) -> Path:
@@ -242,7 +246,8 @@ class SettingsReq(BaseModel):
 
 @app.get("/api/settings")
 def get_settings():
-    return load_settings()
+    # Merge stored keys (keys.json) into the prefs response so the UI can restore them.
+    return {**load_settings(), **load_keys()}
 
 
 @app.post("/api/settings")
@@ -253,14 +258,17 @@ def post_settings(req: SettingsReq):
     s["depth"]             = req.depth if req.depth in ("fast", "standard", "deep") else "standard"
     if req.goal_lessons      is not None: s["goal_lessons"]      = max(1, min(len(get_lessons(_lang())) or 30, req.goal_lessons))
     if req.sessions_per_week is not None: s["sessions_per_week"] = max(1, min(7,  req.sessions_per_week))
-    if req.remember_key:
-        if req.claude_key: s["claude_key"] = req.claude_key
-        if req.openai_key: s["openai_key"] = req.openai_key
-    else:
-        s.pop("claude_key", None)
-        s.pop("openai_key", None)
-        s.pop("api_key", None)   # clear legacy single-key format
+    s.pop("claude_key", None); s.pop("openai_key", None); s.pop("api_key", None)  # keys live in keys.json
     save_settings(s)
+
+    # API keys are stored separately in keys.json, and only when "Remember key" is on.
+    if req.remember_key:
+        keys = {}
+        if req.claude_key: keys["claude_key"] = req.claude_key
+        if req.openai_key: keys["openai_key"] = req.openai_key
+        save_keys(keys)
+    else:
+        clear_keys()
     return {"ok": True}
 
 

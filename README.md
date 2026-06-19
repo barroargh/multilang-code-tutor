@@ -112,7 +112,7 @@ examples. Switch to the **Chat** tab and type `start`.
 - **Settings** — model + API key ("Remember key" to persist), **Learning Plan** (goal milestones for the current language · sessions per week · ETA), **Learning Pace** (Fast / Standard / Deep), and **Appearance** themes.
 - **Help** — full command reference.
 
-Progress saves automatically when the tutor emits `✅ Lesson N complete`. **Export** downloads the chat as Markdown; **Compact** swaps the history for a short handover note, keeping the context window small without losing continuity.
+A lesson is marked complete only when you pass its integration exercise or click **Mark complete** — getting an exercise wrong, or skipping, leaves it *in progress* (blue), not done (green). Progress saves automatically. **Export** downloads the chat as Markdown; **Compact** swaps the history for a short handover note, keeping the context window small without losing continuity.
 
 ### Adding or editing a curriculum
 
@@ -130,14 +130,25 @@ Each language's lessons live in `lessons.py` under `CURRICULA[<language>]`. To a
 | `lessons.py` | All curricula (`CURRICULA[language]`), `GOALS` milestones, `READY_LANGUAGES` — the content source of truth |
 | `curriculum.py` | Maps your declared level in the target language to a per-lesson plan (full / fast-track / optional) |
 | `prompt_builder.py` | Builds the system prompt: depth + treatment + background, injecting the language and its lesson sequence into the base template |
-| `data_manager.py` | Reads/writes profile & settings, and **per-language** progress/history, to disk |
+| `data_manager.py` | Reads/writes the tidy `user_data/` layout — profile, settings, keys, and per-language progress/history |
 | `system_prompt.md` | Language-agnostic teaching template (`{{LANGUAGE}}` + `{{LESSON_SEQUENCE}}` placeholders) |
 | `build.py` | PyInstaller build script |
 | `launch.bat` | Windows double-click launcher (source mode) |
 | `requirements.txt` | Python dependencies |
 
-User data (profile, settings, and per-language progress/history) is stored in `user_data/`
-next to the exe or script. Delete this folder to reset everything.
+All persisted data lives in `user_data/` next to the exe or script, organised for easy inspection:
+
+```
+user_data/
+  profile.json          # languages you know + your use-case
+  settings.json         # preferences (model, depth, goal, target language)
+  keys.json             # API keys — kept separate from preferences, only if "Remember key"
+  progress/<lang>.json  # { current_lesson, completed } — one small file per language
+  history/<lang>.json   # the chat transcript for that language
+```
+
+Delete the folder to reset everything. Upgrading from an older version migrates the old
+flat files automatically (keeping a `progress.json.bak` backup).
 
 ---
 
