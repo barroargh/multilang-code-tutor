@@ -86,6 +86,12 @@ def chat(req: ChatReq):
     if m:
         completed_id = int(m.group(1))
         mark_lesson_complete(lang, completed_id)
+    else:
+        # No completion this turn. If the tutor started a lesson (e.g. after a skip),
+        # follow the "in progress" pointer to it — WITHOUT marking anything complete.
+        headings = re.findall(r"(?im)^#{1,4}\s*lesson\s+(\d+)\b", reply)
+        if headings:
+            set_current_lesson(lang, int(headings[-1]))
 
     history = req.history + [
         {"role": "user",      "content": req.message},
