@@ -6,8 +6,8 @@ dist/
 build/
 *.spec
 
-# Claude Code — keep launch.json (dev convenience), ignore machine-local settings
-.claude/settings.local.json
+# Claude Code — tool-local config, not part of the app
+.claude/
 
 # Serena MCP — tool-local config/cache, not part of the app
 .serena/
