@@ -1,5 +1,5 @@
 """
-Build the R Training Bot as a standalone executable using PyInstaller.
+Build the Multi-Language Code Tutor as a standalone executable using PyInstaller.
 Runs on the current OS — Windows produces a .exe, macOS a Unix binary.
 (PyInstaller is not a cross-compiler: build each platform on that platform.)
 
@@ -7,7 +7,7 @@ Run:
     pip install -r requirements.txt
     python build.py
 
-Output: dist/R_Training_Bot.exe (Windows) or dist/R_Training_Bot (macOS)
+Output: dist/multilang-code-tutor.exe (Windows) or dist/multilang-code-tutor (macOS)
 """
 
 import PyInstaller.__main__
@@ -19,7 +19,7 @@ SEP  = ";" if sys.platform == "win32" else ":"
 
 PyInstaller.__main__.run([
     "server.py",
-    "--name=R_Training_Bot",
+    "--name=multilang-code-tutor",
     "--onefile",
     "--noconfirm",
     # Bundle static files and the system prompt
@@ -51,6 +51,6 @@ PyInstaller.__main__.run([
     "--collect-all=starlette",
 ])
 
-print("\nBuild complete — find R_Training_Bot.exe in the dist/ folder.")
-print("Copy R_Training_Bot.exe to any Windows machine and double-click to run.")
+print("\nBuild complete — find multilang-code-tutor.exe in the dist/ folder.")
+print("Copy multilang-code-tutor.exe to any Windows machine and double-click to run.")
 print("No Python installation required on the target machine.")

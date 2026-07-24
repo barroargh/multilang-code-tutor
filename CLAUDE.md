@@ -1,4 +1,4 @@
-# R Training Bot — Claude Code context
+# Multi-Language Code Tutor — Claude Code context
 
 ## What this project is
 A conversational coding tutor that teaches **R, Python, Stata, and VBA** (it began R-only —

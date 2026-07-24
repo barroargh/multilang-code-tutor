@@ -1,4 +1,4 @@
-# R Training Bot
+# Multi-Language Code Tutor
 
 A conversational coding tutor that teaches **idiomatic R, Python, Stata, and VBA** — one
 concept at a time, with real data examples and a curriculum tailored to each language. Pick
@@ -32,7 +32,7 @@ pip install -r requirements.txt
 python build.py
 ```
 
-→ `dist/R_Training_Bot.exe` (Windows) or `dist/R_Training_Bot` (macOS). Build on the OS
+→ `dist/multilang-code-tutor.exe` (Windows) or `dist/multilang-code-tutor` (macOS). Build on the OS
 you're targeting — a Windows `.exe` must be built on Windows, a macOS binary on a Mac.
 
 ### Step 2 — Set up a model
@@ -53,8 +53,8 @@ Keys are not stored unless you tick "Remember key".
 
 ### Step 3 — Run
 
-- **Windows:** double-click `dist\R_Training_Bot.exe`.
-- **macOS:** it's a Unix binary (not a `.app`) — run it from Terminal: `./dist/R_Training_Bot`.
+- **Windows:** double-click `dist\multilang-code-tutor.exe`.
+- **macOS:** it's a Unix binary (not a `.app`) — run it from Terminal: `./dist/multilang-code-tutor`.
 
 The browser opens automatically at `http://127.0.0.1:7860`.
 

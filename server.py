@@ -1,5 +1,5 @@
 """
-R Training Bot — FastAPI backend.
+Multi-Language Code Tutor — FastAPI backend.
 Run: python server.py
 """
 import os
@@ -52,7 +52,7 @@ def _extract(content) -> str:
     return str(content)
 
 
-app = FastAPI(title="R Training Bot", docs_url=None, redoc_url=None)
+app = FastAPI(title="Multi-Language Code Tutor", docs_url=None, redoc_url=None)
 
 
 # ── UI ────────────────────────────────────────────────────────────────────────
@@ -294,16 +294,16 @@ class ExportReq(BaseModel):
 
 @app.post("/api/export")
 def export_chat(req: ExportReq):
-    lines = ["# R Training Bot — Session Export\n\n"]
+    lines = ["# Multi-Language Code Tutor — Session Export\n\n"]
     for m in req.history:
         role = "**You**" if m["role"] == "user" else "**Tutor**"
         lines.append(f"{role}:\n\n{_extract(m['content'])}\n\n---\n\n")
     tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False,
-                                      prefix="r_training_", encoding="utf-8")
+                                      prefix="multilang_code_tutor_", encoding="utf-8")
     tmp.write("".join(lines))
     tmp.close()
     return FileResponse(tmp.name, media_type="text/markdown",
-                        filename="r_training_export.md")
+                        filename="multilang-code-tutor-export.md")
 
 
 # ── History management ───────────────────────────────────────────────────────

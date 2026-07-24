@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>R Training Bot</title>
+<title>Multi-Language Code Tutor</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 <style>
 :root {
@@ -449,7 +449,7 @@ textarea.uc-ta:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,16
   <!-- ── Sidebar ── -->
   <aside class="sidebar">
     <div class="sb-logo">
-      <h1>R Training Bot</h1>
+      <h1>Multi-Language Code Tutor</h1>
       <p id="sb-subtitle">Idiomatic R, one concept at a time</p>
     </div>
 
@@ -1451,7 +1451,7 @@ async function exportChat() {
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'r_training_export.md';
+    a.href = url; a.download = 'multilang-code-tutor-export.md';
     document.body.appendChild(a); a.click();
     document.body.removeChild(a); URL.revokeObjectURL(url);
   } catch(e) { toast('Export failed: ' + e.message, 'error'); }
