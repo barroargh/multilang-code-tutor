@@ -46,5 +46,5 @@ Declared level in the *target* language (Profile tab) → `curriculum.plan_for(p
 Add `CURRICULA["X"]` + `GOALS["X"]` in `lessons.py`, then add `"X"` to `READY_LANGUAGES`. The engine, picker, progress, prompt, and goals are all language-agnostic — no other changes needed.
 
 ## Git
-- Repo: `barroargh/R_Tutorial_Bot`, default branch `main`
+- Repo: `barroargh/multilang-code-tutor`, default branch `main`
 - Keep branches short-lived: branch off `main` → PR → merge → delete
