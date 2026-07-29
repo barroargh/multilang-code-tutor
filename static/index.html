@@ -975,6 +975,7 @@ async function init() {
   updatePlanEta();
   renderHistory();
   updateCtxMeter();
+  document.getElementById('messages').addEventListener('click', handleCopyClick);
 }
 
 // ── Sidebar ──────────────────────────────────────────────────────────────────
@@ -1168,20 +1169,53 @@ function renderMd(text) {
   d.innerHTML = html;
   if (typeof hljs !== 'undefined') d.querySelectorAll('pre code').forEach(b => hljs.highlightElement(b));
   d.querySelectorAll('pre').forEach(pre => {
+    // Just the button markup — the click is handled by a delegated listener on
+    // #messages (see init), which survives renderMd's innerHTML round-trip.
     const btn = document.createElement('button');
     btn.className = 'copy-btn'; btn.textContent = 'Copy';
-    btn.addEventListener('click', () => {
-      const code = pre.querySelector('code');
-      navigator.clipboard.writeText(code ? code.innerText : pre.innerText).then(() => {
-        btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000);
-      });
-    });
     pre.appendChild(btn);
   });
   return d.innerHTML;
 }
 
 function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  // Fallback for browsers without the async clipboard API
+  return new Promise((resolve, reject) => {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      ok ? resolve() : reject(new Error('copy command failed'));
+    } catch (err) { reject(err); }
+  });
+}
+
+// Delegated on #messages so a single handler covers every code block, even
+// ones re-created via innerHTML (which drops any per-button listener).
+function handleCopyClick(e) {
+  const btn = e.target.closest('.copy-btn');
+  if (!btn) return;
+  const pre = btn.closest('pre');
+  if (!pre) return;
+  const code = pre.querySelector('code');
+  const text = code ? code.innerText : pre.innerText;
+  copyToClipboard(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+  }).catch(() => {
+    btn.textContent = 'Failed';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+  });
+}
 
 async function sendMessage() {
   if (S.loading) return;
