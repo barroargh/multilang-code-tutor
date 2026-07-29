@@ -1,8 +1,8 @@
 # Multi-Language Code Tutor — Claude Code context
 
 ## What this project is
-A conversational coding tutor that teaches **R, Python, Stata, and VBA** (it began R-only —
-hence the name). FastAPI backend (`server.py`) + single-page HTML/CSS/JS frontend
+A conversational coding tutor that teaches **R, Python, Stata, and VBA** (it started out
+R-only). FastAPI backend (`server.py`) + single-page HTML/CSS/JS frontend
 (`static/index.html`). Runs locally at http://127.0.0.1:7860.
 
 ```

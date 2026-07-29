@@ -5,7 +5,7 @@ concept at a time, with real data examples and a curriculum tailored to each lan
 the language you want to learn; the bot adapts the lesson plan and its explanations to the
 languages you already know.
 
-> It began as an R-only tutor (hence the name) and now teaches four languages.
+> It started out teaching only R, and grew from there into a tutor for four languages.
 
 Features:
 - **Four languages to learn:** R (30 lessons), Python (30), Stata (24), VBA (20) — switch any time from the sidebar
